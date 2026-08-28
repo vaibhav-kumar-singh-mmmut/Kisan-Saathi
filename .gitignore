@@ -1,0 +1,55 @@
+# ---------- OS files ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- Editor/IDE ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---------- Environment / secrets ----------
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ---------- Node / React / Next.js ----------
+node_modules/
+dist/
+build/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json.bak
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+env/
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# ---------- Java / Android ----------
+*.class
+target/
+.gradle/
+*.jar
+*.war
+
+# ---------- Logs ----------
+*.log
+logs/
+
+# ---------- Misc ----------
+*.tmp
+*.bak
+.cache/
+coverage/
