@@ -130,4 +130,35 @@ test_dashboard_dm_scope PASSED            ← DM sees all district villages
 
 ---
 
-_[continue for each phase]_
+## Phase 3 — Farmer App Shell: Voice + Localization ✅
+
+**Date/Time:** 2026-08-28
+**Tool/Agent:** Antigravity AI
+**What happened:**
+- Setup `i18next` + `react-i18next` with `en.json` and `hi.json` containing 100% synchronized translation keys.
+- Implemented Web Speech API TTS voice hook (`useTTS.ts`) with voice auto-selection for `hi-IN` and `en-IN` and language toggle persistence in `localStorage`.
+- Built 5-screen interactive Farmer Shell (`FarmerShell.tsx`):
+  1. `[Scan Crop]`: Native rear-camera capture (`capture="environment"`), gallery photo upload, image preview with GPS auto-tagging (`navigator.geolocation`), client-side canvas compression, and Analyze/Retake flow.
+  2. `[My Reports]`: Historical farmer crop scan reports with crop icons, village tags, status badges (`status_ready`, `status_review`, `status_scheduled`), and TTS readout.
+  3. `[Weather Alert]`: Climate radar cards (Temperature, Humidity, Rain forecast) + Village disease zone risk breakdown (Red / Orange / Green / Incoming Risk).
+  4. `[Ask Expert]`: Consultation form with interactive quick-question suggestion chips + submission receipt and response SLA.
+  5. `[Book Drone]`: Aerial spray service with dynamic field acreage counter, crop selector, chemical/bio-spray toggle, real-time cost calculation (₹400/acre), and instant booking confirmation badge.
+- Re-architected `index.css` following `front.md` minimalist principles: flat surfaces, single border-radius (`8px`), single accent (`#22c55e`), WCAG AA high-contrast, large touch targets (56px+), zero decorative gradients.
+- Fixed CORS origins in backend `config.py` to allow `127.0.0.1` and `localhost` ports.
+
+**AI suggestion I rejected / corrected:**
+- Initially, the scan button was a mock visual circle without native file input triggers. Replaced with dual `<input type="file">` refs (one with `capture="environment"` for mobile camera, one for photo gallery).
+- Fixed React 19 `JSX.Element` type mismatch in `FarmerShell.tsx` by utilizing `React.ReactElement`.
+
+**Gate status:**
+- ✅ TypeScript + Vite production build compiles in ~100ms with 0 errors.
+- ✅ Language toggle switches between English and Hindi live without reloads.
+- ✅ Web Speech API voice synthesis functions for all 5 screens in both languages.
+- ✅ Backend test suite 11/11 tests green.
+
+**Remaining risk for this phase:**
+- SpeechSynthesis availability depends on browser/OS platform (handled gracefully with fallback).
+
+---
+
+## Phase 4 — Image Capture, Geotag, Offline Queue _(pending)_

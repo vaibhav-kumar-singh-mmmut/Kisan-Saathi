@@ -18,44 +18,82 @@
 
   "scan": {
     "title": "Scan Your Crop",
-    "subtitle": "Take a clear photo of the diseased leaf",
+    "subtitle": "Take a photo or choose from your gallery",
+    "take_photo": "Take Photo",
+    "upload_gallery": "Upload from Gallery",
+    "photo_tip": "Ensure good light and focus on the diseased leaf or spot.",
     "tap_to_scan": "Tap to Take Photo",
     "uploading": "Analysing…",
-    "narration": "Take a clear photo of the diseased leaf or plant. Make sure there is good light."
+    "preview_title": "Confirm Photo",
+    "preview_alt": "Crop photo preview",
+    "analyze": "Analyze Crop",
+    "retake": "Choose Another Photo",
+    "gps_fetching": "📍 Getting GPS…",
+    "gps_unavailable": "📍 GPS unavailable",
+    "narration": "Take a clear photo of the diseased leaf, or upload from your gallery. Make sure there is good light."
   },
 
   "reports": {
     "title": "My Reports",
-    "subtitle": "Your recent disease scan reports",
+    "subtitle": "Your recent disease scan reports and advisories",
     "empty": "No reports yet. Scan a crop to get started.",
-    "narration": "Your recent crop scan reports are shown here."
+    "narration": "Here are your recent crop scan reports and disease advisories.",
+    "status_ready": "Advisory Ready",
+    "status_review": "Expert Review",
+    "status_scheduled": "Drone Scheduled",
+    "report_date": "Date",
+    "view_advisory": "View Advisory"
   },
 
   "weather": {
-    "title": "Weather Alert",
-    "subtitle": "Disease risk outlook for your area",
+    "title": "Weather & Risk Radar",
+    "subtitle": "Disease risk outlook based on local climate",
     "risk_high": "High Risk",
     "risk_medium": "Medium Risk",
     "risk_low": "Low Risk",
     "incoming_risk": "Incoming Risk",
-    "narration": "Weather-based crop disease risk for your area is shown here."
+    "temp": "Temp",
+    "humidity": "Humidity",
+    "forecast": "Forecast",
+    "rain_forecast": "High humidity & light rain expected (Fungal alert)",
+    "radar_title": "Village Risk Status",
+    "narration": "Weather-based disease risk for your area is shown here. High humidity increases fungal risk."
   },
 
   "expert": {
     "title": "Ask an Expert",
-    "subtitle": "Get advice from an agricultural officer",
-    "send_question": "Send Question",
-    "placeholder": "Type your question here…",
-    "narration": "Ask an expert agricultural officer your question."
+    "subtitle": "Direct consultation with District Agricultural Officer",
+    "send_question": "Submit Question",
+    "placeholder": "Describe what you see on your crop…",
+    "quick_chips_title": "Quick Questions",
+    "chip_yellow_spots": "Yellow spots on leaf",
+    "chip_fertilizer": "Fertilizer dosage",
+    "chip_spray_time": "Best time for spray",
+    "chip_subsidy": "Pesticide subsidy status",
+    "sent_success_title": "Question Sent to Officer",
+    "sent_success_desc": "Agricultural Officer (KVK Mohanlalganj) will review and reply within 4 hours.",
+    "ask_another": "Ask Another Question",
+    "narration": "Ask an agricultural expert your question or select a quick topic below."
   },
 
   "drone": {
     "title": "Book Drone Spray",
-    "subtitle": "Schedule an aerial spray for your field",
-    "book_now": "Book Now",
+    "subtitle": "Subsidized aerial pesticide & bio-spray service",
+    "acres_label": "Field Size (Acres)",
+    "crop_label": "Crop",
+    "spray_type_label": "Spray Type",
+    "date_label": "Preferred Date",
+    "chemical_spray": "Targeted Fungicide (Yellow Rust)",
+    "bio_spray": "Bio-Stimulant / Organic Neem Spray",
     "estimated_cost": "Estimated Cost",
     "per_acre": "per acre",
-    "narration": "Book a drone spray service for your crop field."
+    "total_cost": "Total Estimated Cost",
+    "book_now": "Confirm Drone Booking",
+    "booking_confirmed": "Booking Confirmed!",
+    "booking_id": "Booking ID",
+    "officer_notified": "CHC Drone Pilot & Local Lekhpal notified for field dispatch.",
+    "book_another": "Book Another Field",
+    "narration": "Book a subsidized drone spray service for your field. Select your acreage and date."
   },
 
   "common": {
@@ -69,7 +107,7 @@
     "language": "Language",
     "listen": "Listen",
     "stop": "Stop",
-    "coming_soon": "Coming soon in a future update"
+    "coming_soon": "Feature connected to Phase backend."
   },
 
   "zone": {

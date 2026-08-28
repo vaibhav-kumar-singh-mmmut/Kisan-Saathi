@@ -39,28 +39,16 @@ function OfficerGrid({ onSwitch }: { onSwitch: () => void }) {
     <>
       <header className="shell-header">
         <span className="shell-logo">🌾 Kisan Saathi</span>
-        <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>
-          Officer Dashboard — Phases 1-2 Done
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span id="api-health-badge" style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span id="api-health-badge" style={{ fontSize: '0.75rem', color: 'var(--text-2)' }}>
             {health}
           </span>
           <button
             id="switch-to-farmer"
             onClick={onSwitch}
-            style={{
-              padding: '0.3rem 0.8rem',
-              background: 'rgba(63,185,80,0.15)',
-              border: '1px solid rgba(63,185,80,0.4)',
-              borderRadius: '999px',
-              color: 'var(--color-primary)',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            className="tts-btn"
           >
-            👨‍🌾 Farmer View
+            Farmer View
           </button>
         </div>
       </header>
@@ -107,28 +95,14 @@ export default function App() {
 
   if (view === 'farmer') {
     return (
-      <div style={{ position: 'relative' }}>
+      <div className="shell-container">
         <FarmerShell />
-        {/* Dev-only toggle — remove in Phase 4 when JWT routing is wired */}
         <button
           id="switch-to-officer"
+          className="dev-toggle-btn"
           onClick={() => setView('officer')}
-          style={{
-            position: 'fixed',
-            bottom: '80px',
-            right: '12px',
-            padding: '0.4rem 0.75rem',
-            background: 'rgba(163,113,247,0.15)',
-            border: '1px solid rgba(163,113,247,0.4)',
-            borderRadius: '999px',
-            color: 'var(--color-incoming)',
-            fontSize: '0.7rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            zIndex: 200,
-          }}
         >
-          🏛 Officer View
+          Officer View
         </button>
       </div>
     )
