@@ -10,12 +10,18 @@ Module routing reference (PRODUCTION_WORKFLOW.md § MVP Module Map):
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import ping
+from app.api.v1.endpoints import auth
+from app.api.v1.endpoints import dashboard
 
 api_router = APIRouter()
 
-# ── Feature routers (added as phases progress) ────────────────────────────────
+# ── Phase 0 ───────────────────────────────────────────────────────────────────
 api_router.include_router(ping.router, prefix="/ping", tags=["meta"])
-# Phase 2   : auth           — /auth/otp, /auth/token
+
+# ── Phase 2 — Auth + Jurisdiction-Aware Access ────────────────────────────────
+api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+
 # Phase 3-5 : M1 AI Crop Doctor — /crop-scan, /disease-reports
 # Phase 5-6 : M3 Smart Advisory — /advisory
 # Phase 7   : M5 Expert Validation Loop — /expert-queue

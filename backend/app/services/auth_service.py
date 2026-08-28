@@ -1,0 +1,108 @@
+"""
+Auth service — OTP request + OTP verify/login logic.
+
+Searches both `farmers` and `officials` tables by phone.
+JWT payload includes user_type, role, wing, jurisdiction_type, jurisdiction_id.
+"""
+import logging
+from typing import Optional
+
+from fastapi import HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.core.config import settings
+from app.models.farmer import Farmer
+from app.models.official import Official
+from app.utils.otp import generate_otp, verify_otp
+from app.utils.jwt_utils import create_access_token
+from app.schemas.auth import OTPRequestResponse, TokenResponse
+
+logger = logging.getLogger(__name__)
+
+
+def request_otp(phone: str, db: Session) -> OTPRequestResponse:
+    """
+    Look up phone in officials OR farmers.
+    Generate OTP and return it (in dev mode) or log it.
+    Raises 404 if phone not found in either table.
+    """
+    # Check officials first (more common in demo flow)
+    official = db.execute(select(Official).where(Official.phone == phone)).scalar_one_or_none()
+    farmer = None
+    if not official:
+        farmer = db.execute(select(Farmer).where(Farmer.phone == phone)).scalar_one_or_none()
+
+    if not official and not farmer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Phone number not registered.",
+        )
+
+    code = generate_otp(phone)
+
+    # Log the code server-side (always useful for debugging)
+    logger.info("[OTP] %s → %s", phone, code)
+
+    # In dev mode: return the code in the response for easy testing
+    dev_code: Optional[str] = code if settings.DEV_RETURN_OTP else None
+
+    return OTPRequestResponse(otp_sent=True, dev_code=dev_code)
+
+
+def verify_otp_and_login(phone: str, code: str, db: Session) -> TokenResponse:
+    """
+    Verify OTP. If correct, build and return a JWT token.
+    Raises 401 on wrong/expired OTP.
+    """
+    if not verify_otp(phone, code):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired OTP.",
+        )
+
+    # Identify the user
+    official = db.execute(select(Official).where(Official.phone == phone)).scalar_one_or_none()
+
+    if official:
+        payload = {
+            "sub": official.id,
+            "user_type": "official",
+            "role": official.role,
+            "wing": official.wing,
+            "jurisdiction_type": official.jurisdiction_type,
+            "jurisdiction_id": official.jurisdiction_id or "",
+            "name": official.name,
+            "phone": official.phone,
+        }
+        return TokenResponse(
+            access_token=create_access_token(payload),
+            user_type="official",
+            role=official.role,
+            wing=official.wing,
+            jurisdiction_type=official.jurisdiction_type,
+            jurisdiction_id=official.jurisdiction_id or "",
+        )
+
+    farmer = db.execute(select(Farmer).where(Farmer.phone == phone)).scalar_one_or_none()
+    if farmer:
+        payload = {
+            "sub": farmer.id,
+            "user_type": "farmer",
+            "role": "Farmer",
+            "wing": None,
+            "jurisdiction_type": "village",
+            "jurisdiction_id": farmer.jurisdiction_id or "",
+            "name": farmer.name,
+            "phone": farmer.phone,
+        }
+        return TokenResponse(
+            access_token=create_access_token(payload),
+            user_type="farmer",
+            role="Farmer",
+            jurisdiction_type="village",
+            jurisdiction_id=farmer.jurisdiction_id or "",
+        )
+
+    # Should never reach here — OTP was valid but user disappeared
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="User not found after OTP verification.")

@@ -79,7 +79,54 @@ Seed verification complete — safe to proceed to Phase 2.
 
 ---
 
-## Phase 2 — Auth + Jurisdiction-Aware Access _(pending)_
+## Phase 2 — Auth + Jurisdiction-Aware Access ✅
+
+**Date/Time:** 2026-08-28
+**Tool/Agent:** Antigravity AI (Claude Sonnet 4.6 Thinking)
+**What happened:**
+- `app/utils/otp.py` — 6-digit OTP, 5-min TTL, in-memory store (Redis swap-in point documented)
+- `app/utils/jwt_utils.py` — `create_access_token` + `decode_access_token` (python-jose)
+- `app/utils/jurisdiction_scope.py` — `get_current_user` FastAPI OAuth2 dependency
+- `app/schemas/auth.py` — `OTPRequest`, `OTPVerify`, `TokenResponse`, `UserMe`, `OTPRequestResponse`
+- `app/schemas/jurisdiction.py` — `VillageSummary` (Pydantic v2 `from_attributes=True`)
+- `app/services/auth_service.py` — `request_otp()` (searches officials + farmers by phone) + `verify_otp_and_login()`
+- `app/services/jurisdiction_service.py` — `get_village_ids_in_scope()` recursive CTE + role→scope mapping
+- `app/api/v1/endpoints/auth.py` — POST /otp/request, POST /otp/verify, GET /me
+- `app/api/v1/endpoints/dashboard.py` — GET /villages (single route, server-side scoped)
+- `app/core/config.py` — added `OTP_TTL_SECONDS=300`, `DEV_RETURN_OTP=True`
+- `app/api/v1/router.py` — mounted `/auth` and `/dashboard` routers
+
+**AI suggestion I rejected / corrected:** Initial test fixtures used a non-StaticPool
+in-memory SQLite engine — each `Session()` opened a new connection and got a blank DB.
+Fixed by using `StaticPool` so all sessions share the same in-memory connection.
+
+**Tests run:**
+```
+pytest tests/test_health.py tests/test_auth.py -v
+11 passed in 0.60s
+
+test_health_endpoint PASSED
+test_ping_endpoint PASSED
+test_docs_available PASSED
+test_otp_request_known_official PASSED    ← known phone → 200, dev_code present
+test_otp_request_unknown_phone PASSED     ← unknown phone → 404
+test_otp_verify_wrong_code PASSED         ← wrong OTP → 401
+test_otp_verify_correct_code PASSED       ← correct OTP → 200, JWT present
+test_me_no_token PASSED                   ← no token → 401
+test_me_valid_token PASSED                ← valid JWT → 200, role/jurisdiction correct
+test_dashboard_tehsildar_scope PASSED     ← Tehsildar sees only tehsil villages
+test_dashboard_dm_scope PASSED            ← DM sees all district villages
+```
+
+**Gate status:** ✅ All 8 Phase 2 auth tests green. Jurisdiction scope verified via automated tests.
+`/health` remains open (no auth required).
+
+**Remaining risk for this phase:**
+- OTP is in-memory — restarts clear all pending OTPs (acceptable for hackathon).
+- `DEV_RETURN_OTP=True` must be set False before any public deployment.
+- Recursive CTE works in SQLite (dev) and PostgreSQL (prod). Not tested with PostGIS yet.
+
+
 
 ---
 

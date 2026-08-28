@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
+    # OTP
+    OTP_TTL_SECONDS: int = 300              # 5 minutes
+    DEV_RETURN_OTP: bool = True             # Echo OTP in response — set False in prod
+
     # External APIs
     WEATHER_API_KEY: str = ""
     MAPS_API_KEY: str = ""
