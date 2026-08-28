@@ -1,0 +1,461 @@
+{
+  "_meta": {
+    "description": "Seed data for the disease_lookup table. Each entry drives zone classification, predictive risk alerts, and spread-prediction logic.",
+    "spread_medium_types": ["wind", "water", "soil", "insect_vector", "cropping_calendar_bridge", "contaminated_material"],
+    "notes": "cropping_calendar_bridge: pest/pathogen persists between main seasons via off-season/volunteer crops acting as a 'green bridge' (e.g. rice tungro virus, TN/AP border). risk_factors are plot-level checkable inputs beyond weather that sharpen scoring.",
+    "weather_risk_patterns": {
+      "rust_type": "Cool temps (10-27C) + wind-dispersed. Near-calendar-predictable seasonal windows.",
+      "oomycete_blight_late": "Cool + very wet (10-21C, 90%+ humidity). Needs free moisture on leaf surface.",
+      "alternaria_blight_early": "Warm + humid (24-29C, 70%+ humidity). Opposite temp band from late blight - model separately.",
+      "powdery_mildew": "Moderate temp + high humidity but DRY leaf surface. Can worsen in dry spells with humid nights - does not follow the 'less rain = less risk' rule other fungal diseases do.",
+      "bacterial": "Rain-splash + physical/insect wound as entry point. Risk score should rise when insect activity (thrips etc.) is also reported nearby, not from weather alone.",
+      "soil_borne_wilt": "Cumulative rainfall + poor drainage over time, not a single-day weather trigger. Model as risk_factor (drainage_quality_poor) rather than weather_triggers."
+    },
+    "pathogen_type_guidance": {
+      "bacterial": "Enters via wounds (tools/insects/weather) or natural openings. Hard to treat once internal - advisory should emphasize prevention (pathogen-free seed, hot-water seed treatment, soil solarization) over cure once confirmed.",
+      "fungal": "Enters via wounds, stomata, water pores; wind-spread spores. Generally treatable if caught early - fungicide + sanitation advisory appropriate.",
+      "viral": "Spreads via plant-to-plant contact, soil, seed, pollen, insects. Almost impossible to cure once infected - advisory should NOT suggest a treatment/cure step. Recommend resistant variety for next season + isolate/remove affected plants to prevent spread. Quarantine as last resort at scale.",
+      "nematode": "Soil-based. Crop rotation and soil treatment are primary levers; chemical nematicide only if threshold crossed."
+    },
+    "headline_stat": "India loses an estimated 30% of crops, worth Rs 90,000 crore annually, to pests and diseases; plant diseases alone account for nearly one-third of total production losses. (Source: industry analysis, cited in Kshema General Insurance blog, 2024)"
+  },
+  "diseases": [
+    {
+      "id": "wheat_yellow_rust",
+      "name": "Yellow Rust",
+      "crops": ["Wheat"],
+      "severity": "high",
+      "spread_medium": ["wind"],
+      "spread_radius_km": 50,
+      "seasonal_window": "Dec-Mar (Rabi)",
+      "weather_triggers": { "temp_c_max": 15, "humidity_pct_min": 70 },
+      "regional_source": "Himalayan region (via Barberry host) migrating south on northerly winds into NW India plains",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": [
+        "Use resistant/tolerant wheat varieties where available",
+        "Avoid excess nitrogenous fertilizer",
+        "Spray recommended fungicide (e.g. Propiconazole) at first sign",
+        "Monitor fields weekly during Dec-Mar"
+      ]
+    },
+    {
+      "id": "wheat_brown_leaf_rust",
+      "name": "Brown/Leaf Rust",
+      "crops": ["Wheat"],
+      "severity": "medium",
+      "spread_medium": ["wind"],
+      "spread_radius_km": 40,
+      "seasonal_window": "Feb (Punjab typical onset)",
+      "weather_triggers": { "temp_c_min": 16, "temp_c_max": 27 },
+      "regional_source": "Nilgiri hills (south) and Himalayan hills (north), both act as source regions",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Fungicide spray at onset", "Resistant variety selection", "Field monitoring at heading stage"]
+    },
+    {
+      "id": "wheat_stem_black_rust",
+      "name": "Black/Stem Rust",
+      "crops": ["Wheat"],
+      "severity": "high",
+      "spread_medium": ["wind"],
+      "spread_radius_km": 60,
+      "seasonal_window": "Late Feb-Mar",
+      "weather_triggers": { "temp_c_min": 16, "temp_c_max": 27 },
+      "regional_source": "Nilgiri hills (south), migrates north into Punjab",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Early forecast-based fungicide application", "Resistant variety use"]
+    },
+    {
+      "id": "wheat_pests",
+      "name": "Insect Pest Complex (aphids, termites, armyworm, brown wheat mite)",
+      "crops": ["Wheat"],
+      "severity": "medium",
+      "spread_medium": ["insect_vector"],
+      "risk_factors": ["rice_wheat_monoculture_years"],
+      "irreversible": false,
+      "ipm_steps": ["Pheromone/light traps", "Neem-based spray", "Avoid continuous rice-wheat monoculture"]
+    },
+    {
+      "id": "rice_bakanae",
+      "name": "Bakanae (Foot Rot)",
+      "crops": ["Rice (Basmati)"],
+      "severity": "high",
+      "spread_medium": ["contaminated_material"],
+      "regional_note": "Serious in basmati belts: Punjab, Haryana, eastern UP, Uttarakhand, Delhi",
+      "risk_factors": ["seed_source_certified"],
+      "irreversible": false,
+      "ipm_steps": ["Use certified disease-free seed", "Seed treatment before sowing", "Rogue out infected seedlings in nursery"]
+    },
+    {
+      "id": "rice_false_smut",
+      "name": "False Smut",
+      "crops": ["Rice"],
+      "severity": "medium",
+      "spread_medium": ["wind", "water"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Balanced nitrogen use", "Fungicide spray at boot-leaf stage", "Field sanitation post-harvest"]
+    },
+    {
+      "id": "rice_blast",
+      "name": "Rice Blast",
+      "crops": ["Rice"],
+      "severity": "high",
+      "spread_medium": ["wind", "water"],
+      "weather_triggers": { "humidity_pct_min": 85, "temp_c_min": 24, "temp_c_max": 28, "prolonged_leaf_wetness_hrs_min": 8 },
+      "historical_note": "Contributed to 1942-43 Bengal famine; still widespread in WB, Odisha, AP, TN, Karnataka",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Resistant variety use", "Balanced fertilization", "Fungicide seed treatment"]
+    },
+    {
+      "id": "rice_tungro",
+      "name": "Tungro Virus",
+      "crops": ["Rice"],
+      "severity": "high",
+      "spread_medium": ["insect_vector", "cropping_calendar_bridge"],
+      "regional_note": "Coromandel coast, TN/AP border; off-season 'green bridge' cropping lets vector persist between main seasons",
+      "risk_factors": ["off_season_planting_nearby"],
+      "irreversible": true,
+      "ipm_steps": ["Avoid off-season/summer rice near main-season fields", "Vector (leafhopper) control", "Resistant variety use"]
+    },
+    {
+      "id": "sugarcane_red_rot",
+      "name": "Red Rot",
+      "crops": ["Sugarcane"],
+      "severity": "high",
+      "spread_medium": ["soil", "contaminated_material"],
+      "regional_note": "Widespread across Indo-Gangetic plain, esp. western UP",
+      "risk_factors": ["drainage_quality_poor", "ratoon_crop", "planting_material_certified"],
+      "irreversible": true,
+      "ipm_steps": [
+        "Use certified, disease-free planting material (setts)",
+        "Improve field drainage",
+        "Avoid excessive ratooning of infected fields",
+        "Remove and destroy infected stools"
+      ]
+    },
+    {
+      "id": "cotton_whitefly",
+      "name": "Whitefly Infestation",
+      "crops": ["Cotton"],
+      "severity": "high",
+      "spread_medium": ["insect_vector", "wind"],
+      "regional_note": "Punjab, Haryana, Gujarat, MP, Rajasthan",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Yellow sticky traps", "Neem-based spray", "Avoid excess nitrogen"]
+    },
+    {
+      "id": "cotton_pink_bollworm",
+      "name": "Pink Bollworm",
+      "crops": ["Cotton"],
+      "severity": "high",
+      "spread_medium": ["insect_vector"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Pheromone traps", "Timely destruction of crop residue", "Recommended insecticide if threshold crossed"]
+    },
+    {
+      "id": "mustard_pests_diseases",
+      "name": "Aphid / Alternaria Blight / White Rust",
+      "crops": ["Mustard"],
+      "severity": "medium",
+      "spread_medium": ["insect_vector", "wind"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Neem oil spray", "Recommended fungicide for white rust", "Timely sowing to avoid peak aphid window"]
+    },
+    {
+      "id": "onion_purple_blotch",
+      "name": "Purple Blotch",
+      "crops": ["Onion"],
+      "severity": "high",
+      "spread_medium": ["wind", "insect_vector"],
+      "weather_triggers": { "temp_c_min": 28, "temp_c_max": 30, "humidity_pct_min": 80 },
+      "compound_risk_with": ["onion_thrips"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Use healthy/certified seed", "Trichoderma harzianum foliar spray", "Manage thrips to reduce leaf injury entry points"]
+    },
+    {
+      "id": "onion_stemphylium_blight",
+      "name": "Stemphylium Leaf Blight",
+      "crops": ["Onion"],
+      "severity": "high",
+      "spread_medium": ["wind", "water"],
+      "regional_note": "Documented in Tarai/Bhabar regions of Uttarakhand",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Neembicidine foliar spray", "Crop rotation (3+ years out of onion)", "Field sanitation - bury plant debris"]
+    },
+    {
+      "id": "onion_thrips",
+      "name": "Thrips",
+      "crops": ["Onion"],
+      "severity": "medium",
+      "spread_medium": ["insect_vector"],
+      "seasonal_window": "Mar-Apr peak in North India",
+      "compound_risk_with": ["onion_purple_blotch"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Neem-based IGR bio-pesticide", "Blue sticky traps", "Early detection critical - compounds purple blotch severity"]
+    },
+    {
+      "id": "onion_fusarium_basal_rot",
+      "name": "Fusarium Basal Rot",
+      "crops": ["Onion", "Garlic"],
+      "severity": "high",
+      "spread_medium": ["soil"],
+      "risk_factors": [],
+      "irreversible": true,
+      "ipm_steps": ["Field sanitation", "Avoid waterlogging", "Use resistant varieties where available"]
+    },
+    {
+      "id": "solanaceous_early_blight",
+      "name": "Early Blight",
+      "crops": ["Tomato", "Potato", "Brinjal", "Chilli"],
+      "severity": "medium",
+      "spread_medium": ["soil", "water"],
+      "weather_triggers": { "temp_c_min": 24, "temp_c_max": 29, "humidity_pct_min": 70 },
+      "risk_factors": ["same_family_rotation"],
+      "irreversible": false,
+      "ipm_steps": ["Crop rotation out of Solanaceae for 3 years", "Morning irrigation so leaves dry fast", "Fungicide at first sign"]
+    },
+    {
+      "id": "solanaceous_late_blight",
+      "name": "Late Blight",
+      "crops": ["Tomato", "Potato", "Brinjal"],
+      "severity": "high",
+      "spread_medium": ["wind", "water"],
+      "weather_triggers": { "temp_c_min": 10, "temp_c_max": 21, "humidity_pct_min": 90 },
+      "risk_factors": [],
+      "irreversible": true,
+      "ipm_steps": ["Destroy infected plants immediately", "Avoid overhead irrigation", "Preventive fungicide before cool-wet spell"]
+    },
+    {
+      "id": "solanaceous_bacterial_wilt",
+      "name": "Bacterial Wilt",
+      "crops": ["Tomato", "Chilli"],
+      "severity": "high",
+      "spread_medium": ["soil"],
+      "weather_triggers": { "temp_c_min": 28, "recent_heavy_rain_or_irrigation": true },
+      "risk_factors": ["recent_insect_or_physical_wounding"],
+      "irreversible": true,
+      "ipm_steps": ["Remove and destroy infected plants immediately", "No effective chemical control - focus on prevention", "Crop rotation with non-host crops"]
+    },
+    {
+      "id": "potato_pink_rot",
+      "name": "Pink Rot",
+      "crops": ["Potato"],
+      "severity": "medium",
+      "spread_medium": ["soil", "water"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Improve field drainage", "Avoid waterlogged storage conditions"]
+    },
+    {
+      "id": "potato_powdery_scab",
+      "name": "Powdery Scab",
+      "crops": ["Potato"],
+      "severity": "low",
+      "spread_medium": ["soil"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Use certified tuber seed", "Avoid waterlogged fields"]
+    },
+    {
+      "id": "brinjal_fruit_shoot_borer",
+      "name": "Fruit & Shoot Borer",
+      "crops": ["Brinjal"],
+      "severity": "high",
+      "spread_medium": ["insect_vector"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Pheromone traps", "Remove/destroy infested shoots and fruits", "Recommended insecticide if threshold crossed"]
+    },
+    {
+      "id": "nursery_damping_off",
+      "name": "Damping-off",
+      "crops": ["Tomato", "Brinjal", "Chilli", "Cauliflower", "Cabbage"],
+      "severity": "medium",
+      "spread_medium": ["soil", "water"],
+      "growth_stage": "nursery",
+      "risk_factors": ["overwatering", "waterlogged_nursery"],
+      "irreversible": false,
+      "ipm_steps": ["Trichoderma viride soil treatment before sowing", "Avoid overwatering nursery beds", "Water from below, not overhead"]
+    },
+    {
+      "id": "anthracnose_multi",
+      "name": "Anthracnose",
+      "crops": ["Mango", "Guava", "Grapes", "Papaya", "Citrus", "Pomegranate"],
+      "severity": "high",
+      "spread_medium": ["wind", "water"],
+      "weather_triggers": { "humidity_pct_min": 80 },
+      "regional_note": "Guava anthracnose esp. in UP (Saharanpur), Punjab, Karnataka",
+      "note": "Shared pathogen family across multiple orchard fruits - a confirmed outbreak in one fruit type is a risk signal for adjacent orchards of other listed crops",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Preharvest fungicide sprays (carbendazim/thiophanate-methyl)", "Postharvest dip treatment", "Remove infected plant material"]
+    },
+    {
+      "id": "mango_powdery_mildew",
+      "name": "Powdery Mildew",
+      "crops": ["Mango"],
+      "severity": "high",
+      "spread_medium": ["wind"],
+      "growth_stage": "flowering",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Sulphur spray at flowering", "Fungicide application timed to panicle emergence"]
+    },
+    {
+      "id": "mango_bacterial_canker",
+      "name": "Bacterial Canker",
+      "crops": ["Mango"],
+      "severity": "medium",
+      "spread_medium": ["water", "wind"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Copper-based spray", "Prune and destroy infected branches"]
+    },
+    {
+      "id": "litchi_blight",
+      "name": "Leaf, Panicle & Fruit Blight (Alternaria alternata)",
+      "crops": ["Litchi"],
+      "severity": "medium",
+      "spread_medium": ["wind"],
+      "regional_note": "Bihar, eastern UP, Uttarakhand, West Bengal",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Fungicide spray at panicle emergence", "Post-harvest handling care to limit fruit decay"]
+    },
+    {
+      "id": "litchi_sudden_death",
+      "name": "Litchi Sudden Death",
+      "crops": ["Litchi"],
+      "severity": "high",
+      "spread_medium": ["soil"],
+      "growth_stage": "young_tree_under_5yr",
+      "risk_factors": [],
+      "irreversible": true,
+      "ipm_steps": ["Remove and destroy affected young trees promptly", "Avoid waterlogging at root crown", "Report immediately - fast-acting (4-5 day progression)"]
+    },
+    {
+      "id": "litchi_fruit_shoot_borer",
+      "name": "Fruit & Shoot Borer Complex",
+      "crops": ["Litchi"],
+      "severity": "high",
+      "spread_medium": ["insect_vector"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Pheromone/light traps", "Timely harvest to reduce exposure window"]
+    },
+    {
+      "id": "pomegranate_bacterial_blight",
+      "name": "Bacterial Blight",
+      "crops": ["Pomegranate"],
+      "severity": "high",
+      "spread_medium": ["water"],
+      "growth_stage": "fruiting",
+      "weather_triggers": { "recent_heavy_rain_or_irrigation": true },
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Use disease-free planting material", "Avoid overhead irrigation", "Prune infected branches Dec-Feb", "Disinfect pruning tools"]
+    },
+    {
+      "id": "pomegranate_nematode_wilt",
+      "name": "Wilt (Nematode-linked)",
+      "crops": ["Pomegranate"],
+      "severity": "medium",
+      "spread_medium": ["soil"],
+      "regional_note": "Documented in Himachal Pradesh orchards",
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Soil nematode testing", "Nematicide drenching if threshold crossed", "Proper drainage and weed management"]
+    },
+    {
+      "id": "chickpea_wilt",
+      "name": "Wilt",
+      "crops": ["Chickpea"],
+      "severity": "high",
+      "spread_medium": ["soil", "water"],
+      "regional_note": "MP, Rajasthan, UP, Haryana, Maharashtra, Punjab",
+      "risk_factors": ["same_family_rotation"],
+      "irreversible": true,
+      "ipm_steps": ["Crop rotation out of pulses", "Resistant variety use", "Seed treatment before sowing"]
+    },
+    {
+      "id": "chickpea_ascochyta_blight",
+      "name": "Ascochyta Blight",
+      "crops": ["Chickpea"],
+      "severity": "medium",
+      "spread_medium": ["contaminated_material", "wind"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Field/crop sanitation", "Fungicide spray at first sign"]
+    },
+    {
+      "id": "pulses_rust",
+      "name": "Rust",
+      "crops": ["Pea", "Lentil", "Chickpea", "Moong"],
+      "severity": "medium",
+      "spread_medium": ["wind"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Fungicide spray combinations (metalaxyl/mancozeb type)", "Resistant variety selection"]
+    },
+    {
+      "id": "pulses_powdery_mildew",
+      "name": "Powdery Mildew",
+      "crops": ["Pea", "Moong", "Black Gram"],
+      "severity": "medium",
+      "spread_medium": ["wind"],
+      "weather_triggers": { "humidity_pct_min": 60, "dry_daytime_humid_night": true },
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Sulphur-based spray", "Avoid dense sowing for better airflow"]
+    },
+    {
+      "id": "lentil_collar_rot",
+      "name": "Collar Rot",
+      "crops": ["Lentil"],
+      "severity": "medium",
+      "spread_medium": ["soil"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Seed treatment", "Avoid deep sowing in infected fields"]
+    },
+    {
+      "id": "pigeonpea_wilt",
+      "name": "Vascular Wilt",
+      "crops": ["Pigeon Pea (Arhar)"],
+      "severity": "high",
+      "spread_medium": ["soil"],
+      "risk_factors": ["same_family_rotation"],
+      "irreversible": true,
+      "ipm_steps": ["Resistant variety use", "Crop rotation", "Avoid waterlogged fields"]
+    },
+    {
+      "id": "strawberry_powdery_mildew",
+      "name": "Powdery Mildew",
+      "crops": ["Strawberry"],
+      "severity": "medium",
+      "spread_medium": ["wind"],
+      "risk_factors": [],
+      "irreversible": false,
+      "ipm_steps": ["Sulphur spray", "Adequate plant spacing for airflow"]
+    }
+  ],
+  "compound_risk_rules": [
+    {
+      "trigger_pair": ["onion_thrips", "onion_purple_blotch"],
+      "effect": "thrips feeding injury significantly raises purple blotch infection incidence and severity - boost purple blotch risk score when thrips sighted"
+    }
+  ],
+  "cross_crop_alert_rule": {
+    "description": "When a disease's crops[] list has more than one entry (e.g. anthracnose_multi), a confirmed outbreak on any one listed crop should raise the risk score for OTHER listed crops within the same or adjacent villages, not just the same crop type."
+  }
+}
