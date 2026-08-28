@@ -6,6 +6,7 @@ python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.20
 sqlalchemy==2.0.41
+aiosqlite>=0.21.0              # async SQLite driver for local dev (DB_URL default)
 asyncpg==0.30.0
 alembic==1.16.3
 psycopg[binary,pool]>=3.2.0    # psycopg3 — Python 3.14 compatible; replaces psycopg2-binary
@@ -18,4 +19,3 @@ Pillow==11.3.0
 boto3==1.39.10
 pytest==8.4.1
 pytest-asyncio==1.0.0
-httpx==0.28.1

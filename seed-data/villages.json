@@ -1,0 +1,239 @@
+{
+  "_meta": {
+    "description": "9 seed villages for Phase 1 gate verification. Each village maps to a disease_lookup entry and has pre-computed expected zone color for human review.",
+    "hierarchy": "Lucknow District → Sarojini Nagar Tehsil → Mohanlalganj Block / Bakshi Ka Talab Block",
+    "note": "GPS coords are approximate — real coords will come from PostGIS/AgriStack in production"
+  },
+  "district": {
+    "name": "Lucknow",
+    "state": "Uttar Pradesh"
+  },
+  "tehsils": [
+    {
+      "name": "Sarojini Nagar",
+      "blocks": [
+        {
+          "name": "Mohanlalganj",
+          "villages": [
+            {
+              "ref": "V1",
+              "name": "Rampur Khurd",
+              "lat": "26.7200",
+              "lon": "80.8700",
+              "crop": "Wheat",
+              "season": "rabi",
+              "growth_stage": "vegetative",
+              "acreage_ha": 120,
+              "disease_id": "wheat_yellow_rust",
+              "report_count": 8,
+              "confidence_avg": 0.88,
+              "affected_area_pct": 25.0,
+              "weather": {
+                "temp_c_min": 8, "temp_c_max": 14,
+                "humidity_pct": 78, "rainfall_mm": 2,
+                "wind_direction": "NW"
+              },
+              "weather_trigger_match": true,
+              "expected_zone": "red",
+              "rationale": "severity=high, 8 reports, weather temp≤15°C + hum≥70% matches wheat_yellow_rust triggers"
+            },
+            {
+              "ref": "V2",
+              "name": "Sonbarsa",
+              "lat": "26.7500",
+              "lon": "80.9100",
+              "crop": "Rice",
+              "season": "kharif",
+              "growth_stage": "flowering",
+              "acreage_ha": 95,
+              "disease_id": "rice_blast",
+              "report_count": 6,
+              "confidence_avg": 0.82,
+              "affected_area_pct": 20.0,
+              "weather": {
+                "temp_c_min": 24, "temp_c_max": 27,
+                "humidity_pct": 89, "rainfall_mm": 15,
+                "wind_direction": "SE"
+              },
+              "weather_trigger_match": true,
+              "expected_zone": "red",
+              "rationale": "severity=high, 6 reports, weather hum≥85% + temp 24-28°C matches rice_blast triggers"
+            },
+            {
+              "ref": "V3",
+              "name": "Fatehpur Mafi",
+              "lat": "26.6900",
+              "lon": "80.8400",
+              "crop": "Potato",
+              "season": "rabi",
+              "growth_stage": "vegetative",
+              "acreage_ha": 60,
+              "disease_id": "solanaceous_late_blight",
+              "report_count": 3,
+              "confidence_avg": 0.75,
+              "affected_area_pct": 10.0,
+              "weather": {
+                "temp_c_min": 12, "temp_c_max": 19,
+                "humidity_pct": 82, "rainfall_mm": 8,
+                "wind_direction": "N"
+              },
+              "weather_trigger_match": false,
+              "expected_zone": "orange",
+              "rationale": "severity=high, 3 reports (moderate), but weather hum=82% < required 90% for late_blight trigger → partial match only → orange"
+            },
+            {
+              "ref": "V4",
+              "name": "Mahmoodpur",
+              "lat": "26.7100",
+              "lon": "80.8200",
+              "crop": "Mustard",
+              "season": "rabi",
+              "growth_stage": "flowering",
+              "acreage_ha": 40,
+              "disease_id": "mustard_pests_diseases",
+              "report_count": 2,
+              "confidence_avg": 0.70,
+              "affected_area_pct": 5.0,
+              "weather": {
+                "temp_c_min": 10, "temp_c_max": 22,
+                "humidity_pct": 55, "rainfall_mm": 0,
+                "wind_direction": "W"
+              },
+              "weather_trigger_match": false,
+              "expected_zone": "green",
+              "rationale": "severity=medium, only 2 reports, no weather trigger defined for mustard_pests_diseases → green/monitoring"
+            },
+            {
+              "ref": "V5",
+              "name": "Gajraula",
+              "lat": "26.7400",
+              "lon": "80.8900",
+              "crop": "Wheat",
+              "season": "rabi",
+              "growth_stage": "vegetative",
+              "acreage_ha": 80,
+              "disease_id": null,
+              "report_count": 0,
+              "confidence_avg": null,
+              "affected_area_pct": 0,
+              "weather": {
+                "temp_c_min": 9, "temp_c_max": 15,
+                "humidity_pct": 75, "rainfall_mm": 1,
+                "wind_direction": "NW"
+              },
+              "weather_trigger_match": true,
+              "expected_zone": "incoming_risk",
+              "rationale": "ZERO own reports. Within ~4km of V1 (Rampur Khurd) which is RED for wheat_yellow_rust. spread_radius_km=50, wind=NW matches V1→V5 direction, same crop (wheat). Flagged by spread-prediction engine."
+            }
+          ]
+        },
+        {
+          "name": "Bakshi Ka Talab",
+          "villages": [
+            {
+              "ref": "V6",
+              "name": "Deoria Khurd",
+              "lat": "26.8100",
+              "lon": "80.9500",
+              "crop": "Sugarcane",
+              "season": "kharif",
+              "growth_stage": "vegetative",
+              "acreage_ha": 150,
+              "disease_id": "sugarcane_red_rot",
+              "report_count": 5,
+              "confidence_avg": 0.91,
+              "affected_area_pct": 15.0,
+              "risk_factors_present": ["drainage_quality_poor", "ratoon_crop"],
+              "weather": {
+                "temp_c_min": 26, "temp_c_max": 34,
+                "humidity_pct": 72, "rainfall_mm": 45,
+                "wind_direction": "E"
+              },
+              "weather_trigger_match": false,
+              "expected_zone": "red",
+              "rationale": "severity=high, 5 reports, irreversible=true, risk_factors drainage_quality_poor+ratoon_crop present → red regardless of weather trigger (soil-borne spread)"
+            },
+            {
+              "ref": "V7",
+              "name": "Naugaon",
+              "lat": "26.8300",
+              "lon": "80.9200",
+              "crop": "Chickpea",
+              "season": "rabi",
+              "growth_stage": "vegetative",
+              "acreage_ha": 35,
+              "disease_id": "chickpea_wilt",
+              "report_count": 1,
+              "confidence_avg": 0.65,
+              "affected_area_pct": 3.0,
+              "weather": {
+                "temp_c_min": 12, "temp_c_max": 24,
+                "humidity_pct": 50, "rainfall_mm": 0,
+                "wind_direction": "N"
+              },
+              "weather_trigger_match": false,
+              "expected_zone": "green",
+              "rationale": "severity=high but only 1 report (below threshold), confidence=0.65 < 0.70 → needs_expert_review, no weather trigger → green"
+            },
+            {
+              "ref": "V8",
+              "name": "Laharpur",
+              "lat": "26.7900",
+              "lon": "80.9300",
+              "crop": "Onion",
+              "season": "rabi",
+              "growth_stage": "vegetative",
+              "acreage_ha": 45,
+              "disease_id": "onion_purple_blotch",
+              "secondary_disease_id": "onion_thrips",
+              "report_count": 4,
+              "confidence_avg": 0.80,
+              "affected_area_pct": 12.0,
+              "weather": {
+                "temp_c_min": 27, "temp_c_max": 29,
+                "humidity_pct": 82, "rainfall_mm": 5,
+                "wind_direction": "S"
+              },
+              "weather_trigger_match": true,
+              "expected_zone": "orange",
+              "rationale": "severity=high, 4 reports, weather temp 28-30°C + hum≥80% matches purple_blotch trigger. compound_risk_rules: thrips+purple_blotch → boosted severity. 4 reports not enough for red on own but compound risk nudges toward orange→red boundary."
+            },
+            {
+              "ref": "V9",
+              "name": "Bisnathpur",
+              "lat": "26.8500",
+              "lon": "80.9700",
+              "crop": "Rice",
+              "season": "kharif",
+              "growth_stage": "vegetative",
+              "acreage_ha": 70,
+              "disease_id": "rice_tungro",
+              "report_count": 6,
+              "confidence_avg": 0.84,
+              "affected_area_pct": 18.0,
+              "risk_factors_present": ["off_season_planting_nearby"],
+              "weather": {
+                "temp_c_min": 25, "temp_c_max": 32,
+                "humidity_pct": 80, "rainfall_mm": 20,
+                "wind_direction": "SE"
+              },
+              "weather_trigger_match": false,
+              "expected_zone": "red",
+              "rationale": "⚠️ VIRAL — CRITICAL TEST CASE. severity=high, 6 reports, irreversible=true, off_season_planting_nearby (green bridge). No weather_triggers in JSON but insect vector conditions present. MUST trigger NO CURE advisory — only isolate + resistant variety. This is the Phase 6 viral-branch test fixture."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "officials": [
+    { "name": "Arvind Kumar Singh", "phone": "+919001000001", "role": "DM", "wing": "revenue", "jurisdiction": "district" },
+    { "name": "Priya Sharma", "phone": "+919001000002", "role": "Tehsildar", "wing": "revenue", "jurisdiction": "tehsil" },
+    { "name": "Rajesh Mishra", "phone": "+919001000003", "role": "Naib Tehsildar", "wing": "revenue", "jurisdiction": "tehsil" },
+    { "name": "Sanjay Yadav", "phone": "+919001000004", "role": "Lekhpal/Patwari", "wing": "revenue", "jurisdiction": "V1" },
+    { "name": "Deepak Verma", "phone": "+919001000005", "role": "BDO", "wing": "development", "jurisdiction": "block_bkt" },
+    { "name": "Dr. Meena Gupta", "phone": "+919001000006", "role": "Agriculture/Horticulture Officer", "wing": "service", "jurisdiction": "block_bkt" },
+    { "name": "Dr. Ashok Tiwari", "phone": "+919001000007", "role": "KVK Expert", "wing": "service", "jurisdiction": "district" },
+    { "name": "Suresh Pandey", "phone": "+919001000008", "role": "CDO", "wing": "development", "jurisdiction": "district" }
+  ]
+}

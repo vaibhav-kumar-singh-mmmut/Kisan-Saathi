@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000
 
-    # Database
-    DB_URL: str = "postgresql+asyncpg://user:password@localhost:5432/kisan_saathi_db"
+    # Database — defaults to SQLite for local dev; set to PostgreSQL+asyncpg in prod
+    DB_URL: str = "sqlite+aiosqlite:///./kisan_saathi_dev.db"
 
     # JWT
     JWT_SECRET: str = "change_me_in_production"
