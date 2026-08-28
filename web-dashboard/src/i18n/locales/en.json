@@ -1,0 +1,86 @@
+{
+  "app_name": "Kisan Saathi",
+  "tagline": "AI-powered crop disease surveillance",
+
+  "nav": {
+    "scan_crop": "Scan Crop",
+    "my_reports": "My Reports",
+    "weather_alert": "Weather Alert",
+    "ask_expert": "Ask Expert",
+    "book_drone": "Book Drone"
+  },
+
+  "greeting": {
+    "hello": "Hello",
+    "today": "Today",
+    "your_crops": "Your Crops"
+  },
+
+  "scan": {
+    "title": "Scan Your Crop",
+    "subtitle": "Take a clear photo of the diseased leaf",
+    "tap_to_scan": "Tap to Take Photo",
+    "uploading": "Analysing…",
+    "narration": "Take a clear photo of the diseased leaf or plant. Make sure there is good light."
+  },
+
+  "reports": {
+    "title": "My Reports",
+    "subtitle": "Your recent disease scan reports",
+    "empty": "No reports yet. Scan a crop to get started.",
+    "narration": "Your recent crop scan reports are shown here."
+  },
+
+  "weather": {
+    "title": "Weather Alert",
+    "subtitle": "Disease risk outlook for your area",
+    "risk_high": "High Risk",
+    "risk_medium": "Medium Risk",
+    "risk_low": "Low Risk",
+    "incoming_risk": "Incoming Risk",
+    "narration": "Weather-based crop disease risk for your area is shown here."
+  },
+
+  "expert": {
+    "title": "Ask an Expert",
+    "subtitle": "Get advice from an agricultural officer",
+    "send_question": "Send Question",
+    "placeholder": "Type your question here…",
+    "narration": "Ask an expert agricultural officer your question."
+  },
+
+  "drone": {
+    "title": "Book Drone Spray",
+    "subtitle": "Schedule an aerial spray for your field",
+    "book_now": "Book Now",
+    "estimated_cost": "Estimated Cost",
+    "per_acre": "per acre",
+    "narration": "Book a drone spray service for your crop field."
+  },
+
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "back": "Back",
+    "close": "Close",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "language": "Language",
+    "listen": "Listen",
+    "stop": "Stop",
+    "coming_soon": "Coming soon in a future update"
+  },
+
+  "zone": {
+    "red": "Red Zone — High Risk",
+    "orange": "Orange Zone — Medium Risk",
+    "green": "Green Zone — Low Risk",
+    "incoming_risk": "Incoming Risk Zone"
+  },
+
+  "advisory": {
+    "viral_warning": "This disease has no cure. Focus on removing infected plants and preventing spread.",
+    "ipm_steps": "Integrated Pest Management Steps"
+  }
+}
