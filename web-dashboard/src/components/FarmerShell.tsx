@@ -17,6 +17,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTTS } from '../hooks/useTTS'
 import LanguageToggle from './LanguageToggle'
+import exifr from 'exifr'
+import { saveScanToQueue, getQueuedScans, removeScanFromQueue } from '../lib/offlineQueue'
+import type { QueuedScan } from '../lib/offlineQueue'
 
 /**
  * Compress an image File to a JPEG blob scaled to maxSize pixels on the long edge.
@@ -58,7 +61,7 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 // ── 1. Scan Screen ───────────────────────────────────────────────────────────
-type ScanState = 'idle' | 'preview' | 'analyzing'
+type ScanState = 'idle' | 'preview' | 'analyzing' | 'offline_saved' | 'webcam'
 
 function ScanScreen() {
   const { t, i18n } = useTranslation()
@@ -67,28 +70,91 @@ function ScanScreen() {
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
 
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+
   const [scanState, setScanState] = useState<ScanState>('idle')
   const [previewSrc, setPreviewSrc] = useState<string | null>(null)
   const [gpsLabel, setGpsLabel] = useState<string>('')
+  const [mismatchWarning, setMismatchWarning] = useState<boolean>(false)
+  
+  // Phase 4: Offline states
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine)
+  const [syncQueue, setSyncQueue] = useState<QueuedScan[]>([])
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
+
+  useEffect(() => {
+    // Load queue on mount and when coming back online
+    getQueuedScans().then(setSyncQueue)
+    
+    if (isOnline && syncQueue.length > 0) {
+      // Simulate sync process for Phase 4
+      const syncData = async () => {
+        for (const scan of syncQueue) {
+          await removeScanFromQueue(scan.id)
+        }
+        setSyncQueue([])
+        speak(t('scan.sync_complete', 'Pending scans synchronized.'), i18n.language)
+      }
+      syncData()
+    }
+  }, [isOnline, syncQueue, speak, t, i18n.language])
 
   useEffect(() => {
     speak(t('scan.narration'), i18n.language)
     return () => stop()
-  }, [i18n.language])
+  }, [i18n.language, speak, stop, t])
 
-  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  useEffect(() => {
+    if (scanState === 'webcam' && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current
+      videoRef.current.play().catch(e => console.error("Video play error:", e))
+    }
+  }, [scanState])
 
-    setScanState('preview')
-    const dataUrl = await compressImage(file)
-    setPreviewSrc(dataUrl)
+  const stopWebcam = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+  }
 
+  const fetchGPS = (file?: File) => {
     setGpsLabel(t('scan.gps_fetching'))
+    let liveLat: number | undefined
+    let liveLng: number | undefined
+
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setGpsLabel(`📍 ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`)
+        async (pos) => {
+          liveLat = pos.coords.latitude
+          liveLng = pos.coords.longitude
+          setGpsLabel(`📍 ${liveLat.toFixed(4)}, ${liveLng.toFixed(4)}`)
+          
+          if (file) {
+            try {
+              const exifData = await exifr.parse(file)
+              if (exifData && exifData.DateTimeOriginal) {
+                const captureTime = new Date(exifData.DateTimeOriginal).getTime()
+                const now = Date.now()
+                if (now - captureTime > 24 * 60 * 60 * 1000) {
+                  setMismatchWarning(true)
+                }
+              }
+            } catch (err) {
+              console.warn('No EXIF data found or parsing failed', err)
+            }
+          }
         },
         () => setGpsLabel(t('scan.gps_unavailable')),
         { timeout: 5000 }
@@ -96,6 +162,44 @@ function ScanScreen() {
     } else {
       setGpsLabel(t('scan.gps_unavailable'))
     }
+  }
+
+  const startWebcam = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      streamRef.current = stream
+      setScanState('webcam')
+    } catch (err) {
+      console.warn("Webcam access denied or unavailable. Falling back to native input.", err)
+      cameraInputRef.current?.click()
+    }
+  }
+
+  const captureWebcam = () => {
+    if (videoRef.current) {
+      const canvas = document.createElement('canvas')
+      canvas.width = videoRef.current.videoWidth
+      canvas.height = videoRef.current.videoHeight
+      canvas.getContext('2d')?.drawImage(videoRef.current, 0, 0)
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82)
+      setPreviewSrc(dataUrl)
+      stopWebcam()
+      setScanState('preview')
+      setMismatchWarning(false)
+      fetchGPS()
+    }
+  }
+
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setScanState('preview')
+    setMismatchWarning(false)
+    
+    const dataUrl = await compressImage(file)
+    setPreviewSrc(dataUrl)
+    fetchGPS(file)
 
     e.target.value = ''
   }
@@ -103,16 +207,49 @@ function ScanScreen() {
   const handleRetake = () => {
     setPreviewSrc(null)
     setGpsLabel('')
+    setMismatchWarning(false)
+    stopWebcam()
     setScanState('idle')
   }
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
+    if (!isOnline) {
+      // Offline queue logic
+      setScanState('offline_saved')
+      await saveScanToQueue({
+        imageSrc: previewSrc!,
+        hasMismatchWarning: mismatchWarning
+      })
+      const queue = await getQueuedScans()
+      setSyncQueue(queue)
+      speak(t('scan.saved_offline', 'Saved offline. Will sync when connected.'), i18n.language)
+      return
+    }
+
     setScanState('analyzing')
     speak(t('scan.uploading'), i18n.language)
+    // Phase 5 integration here
     setTimeout(() => {
       speak(t('common.coming_soon'), i18n.language)
       handleRetake()
     }, 2000)
+  }
+
+  if (scanState === 'offline_saved') {
+    return (
+      <div className="farmer-screen animate-fadeInUp" id="screen-scan-offline">
+        <h2 className="screen-title">{t('scan.offline_title', 'Saved Offline')}</h2>
+        <div className="success-receipt-card">
+          <span className="success-icon" style={{ color: 'var(--orange)' }}>📡</span>
+          <p className="success-desc">
+            {t('scan.offline_desc', 'Your scan has been saved. It will automatically upload when you reconnect to the internet.')}
+          </p>
+          <button className="primary-btn primary-btn--full" onClick={handleRetake}>
+            {t('scan.scan_another', 'Scan Another Crop')}
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (scanState === 'idle') {
@@ -120,6 +257,12 @@ function ScanScreen() {
       <div className="farmer-screen animate-fadeInUp" id="screen-scan">
         <h2 className="screen-title">{t('scan.title')}</h2>
         <p className="screen-sub">{t('scan.subtitle')}</p>
+
+        {syncQueue.length > 0 && (
+          <div className="weather-alert-banner" style={{ background: 'var(--orange-dim)', borderColor: 'var(--orange)', color: 'var(--orange)' }}>
+            ⚠️ {syncQueue.length} {t('scan.pending_sync', 'scan(s) pending sync')}
+          </div>
+        )}
 
         <input
           ref={cameraInputRef}
@@ -142,7 +285,7 @@ function ScanScreen() {
         <button
           id="btn-camera-capture"
           className="scan-action-btn scan-action-btn--primary"
-          onClick={() => cameraInputRef.current?.click()}
+          onClick={startWebcam}
         >
           <span className="scan-action-icon">📷</span>
           <span className="scan-action-label">{t('scan.take_photo')}</span>
@@ -177,6 +320,40 @@ function ScanScreen() {
     )
   }
 
+
+  if (scanState === 'webcam') {
+    return (
+      <div className="farmer-screen animate-fadeInUp" id="screen-scan-webcam">
+        <h2 className="screen-title">{t('scan.preview_title', 'Camera')}</h2>
+        
+        <div className="scan-preview-wrap" style={{ backgroundColor: '#000', marginBottom: '20px' }}>
+          <video
+            ref={videoRef}
+            style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
+            playsInline
+            autoPlay
+            muted
+          />
+        </div>
+
+        <button
+          className="primary-btn primary-btn--full"
+          onClick={captureWebcam}
+        >
+          📷 {t('scan.take_photo', 'Take Photo')}
+        </button>
+
+        <button
+          className="scan-retake-btn"
+          onClick={handleRetake}
+          style={{ marginTop: '10px' }}
+        >
+          ❌ {t('common.cancel', 'Cancel')}
+        </button>
+      </div>
+    )
+  }
+
   if (scanState === 'preview') {
     return (
       <div className="farmer-screen animate-fadeInUp" id="screen-scan-preview">
@@ -195,13 +372,19 @@ function ScanScreen() {
             </div>
           )}
         </div>
+        
+        {mismatchWarning && (
+          <div className="weather-alert-banner">
+            ⚠️ {t('scan.mismatch_warning', 'Photo seems older than 24h. Officer might review it.')}
+          </div>
+        )}
 
         <button
           id="btn-analyze"
           className="primary-btn primary-btn--full"
           onClick={handleAnalyze}
         >
-          🔍 {t('scan.analyze')}
+          🔍 {isOnline ? t('scan.analyze') : t('scan.save_offline', 'Save Offline')}
         </button>
 
         <button
@@ -285,7 +468,7 @@ function ReportsScreen() {
   useEffect(() => {
     speak(t('reports.narration'), i18n.language)
     return () => stop()
-  }, [i18n.language])
+  }, [i18n.language, speak, stop, t])
 
   return (
     <div className="farmer-screen animate-fadeInUp" id="screen-reports">
@@ -343,7 +526,7 @@ function WeatherScreen() {
   useEffect(() => {
     speak(t('weather.narration'), i18n.language)
     return () => stop()
-  }, [i18n.language])
+  }, [i18n.language, speak, stop, t])
 
   const DEMO_ZONES = [
     { name: 'Rampur Khurd', zoneKey: 'zone.red', color: 'red' },
@@ -417,7 +600,7 @@ function ExpertScreen() {
   useEffect(() => {
     speak(t('expert.narration'), i18n.language)
     return () => stop()
-  }, [i18n.language])
+  }, [i18n.language, speak, stop, t])
 
   const QUICK_CHIPS = [
     'expert.chip_yellow_spots',
@@ -529,7 +712,7 @@ function DroneScreen() {
   useEffect(() => {
     speak(t('drone.narration'), i18n.language)
     return () => stop()
-  }, [i18n.language])
+  }, [i18n.language, speak, stop, t])
 
   const handleBooking = () => {
     setConfirmed(true)

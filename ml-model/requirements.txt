@@ -3,7 +3,5 @@ uvicorn[standard]==0.34.3
 pillow==11.3.0
 python-multipart==0.0.20
 numpy==2.3.1
-# Phase 5 — uncomment after training:
-# torch==2.7.1
-# torchvision==0.22.1
-# onnxruntime==1.22.0
+# Phase 5 ML Dependencies
+httpx>=0.24.1

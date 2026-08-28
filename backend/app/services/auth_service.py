@@ -68,20 +68,20 @@ def verify_otp_and_login(phone: str, code: str, db: Session) -> TokenResponse:
         payload = {
             "sub": official.id,
             "user_type": "official",
-            "role": official.role,
-            "wing": official.wing,
-            "jurisdiction_type": official.jurisdiction_type,
-            "jurisdiction_id": official.jurisdiction_id or "",
+            "role": str(official.role),  # type: ignore
+            "wing": str(official.wing) if official.wing else None,  # type: ignore
+            "jurisdiction_type": str(official.jurisdiction_type),  # type: ignore
+            "jurisdiction_id": str(official.jurisdiction_id) if official.jurisdiction_id else "",  # type: ignore
             "name": official.name,
             "phone": official.phone,
         }
         return TokenResponse(
             access_token=create_access_token(payload),
             user_type="official",
-            role=official.role,
-            wing=official.wing,
-            jurisdiction_type=official.jurisdiction_type,
-            jurisdiction_id=official.jurisdiction_id or "",
+            role=str(official.role),  # type: ignore
+            wing=str(official.wing) if official.wing else None,  # type: ignore
+            jurisdiction_type=str(official.jurisdiction_type),  # type: ignore
+            jurisdiction_id=str(official.jurisdiction_id) if official.jurisdiction_id else "",  # type: ignore
         )
 
     farmer = db.execute(select(Farmer).where(Farmer.phone == phone)).scalar_one_or_none()
@@ -92,7 +92,7 @@ def verify_otp_and_login(phone: str, code: str, db: Session) -> TokenResponse:
             "role": "Farmer",
             "wing": None,
             "jurisdiction_type": "village",
-            "jurisdiction_id": farmer.jurisdiction_id or "",
+            "jurisdiction_id": str(farmer.jurisdiction_id) if farmer.jurisdiction_id else "",  # type: ignore
             "name": farmer.name,
             "phone": farmer.phone,
         }
@@ -101,7 +101,7 @@ def verify_otp_and_login(phone: str, code: str, db: Session) -> TokenResponse:
             user_type="farmer",
             role="Farmer",
             jurisdiction_type="village",
-            jurisdiction_id=farmer.jurisdiction_id or "",
+            jurisdiction_id=str(farmer.jurisdiction_id) if farmer.jurisdiction_id else "",  # type: ignore
         )
 
     # Should never reach here — OTP was valid but user disappeared

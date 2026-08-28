@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     WEATHER_API_KEY: str = ""
     MAPS_API_KEY: str = ""
     ML_MODEL_ENDPOINT: str = "http://localhost:8001/predict"
+    CROP_HEALTH_API_KEY: str = ""
     AGRISTACK_UFSI_KEY: str = ""
 
     # CORS — comma-separated string from env, converted to list

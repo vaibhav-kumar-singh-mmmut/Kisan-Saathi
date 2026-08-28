@@ -12,7 +12,7 @@ const PHASES = [
   { id: 4,  label: 'Image Capture + Offline Queue',    module: 'M1',       done: false },
   { id: 5,  label: 'ML Inference Service',             module: 'M1',       done: false },
   { id: 6,  label: 'Pathogen-Branched Advisory',       module: 'M3',       done: false },
-  { id: 7,  label: 'Expert Validation Queue',          module: 'M5',       done: false },
+  { id: 7,  label: 'Expert Validation Queue',          module: 'M5',       done: true },
   { id: 8,  label: 'Zone Scoring Service',             module: 'M2 · M4',  done: false },
   { id: 9,  label: 'Officer Hotspot Map',              module: 'M4',       done: false },
   { id: 10, label: 'Weather + Flood Risk',             module: 'M2',       done: false },
@@ -20,6 +20,8 @@ const PHASES = [
   { id: 12, label: 'AgriStack Sync',                   module: '',         done: false },
   { id: 13, label: 'Polish + Full Test Pass',          module: '',         done: false },
 ]
+
+import OfficerMap from './components/OfficerMap'
 
 // Phase 2 routing stub — in Phase 4 this reads from JWT stored in localStorage
 type ViewMode = 'farmer' | 'officer'
@@ -53,16 +55,17 @@ function OfficerGrid({ onSwitch }: { onSwitch: () => void }) {
         </div>
       </header>
 
-      <main className="shell-main">
+      <main className="shell-main" style={{ padding: '20px' }}>
         <section className="shell-hero animate-fadeInUp">
-          <h1>Fasal Rakshak</h1>
+          <h1>Officer Dashboard</h1>
           <p>
-            AI-powered crop-disease surveillance, advisory, and subsidy
-            management for UP districts.
+            Disease hotspot map (Phase 9) and task queue.
           </p>
-          <div className="badge badge-green pulse" style={{ display: 'inline-block' }}>
-            Phases 1–3 Complete
-          </div>
+        </section>
+
+        <section style={{ marginBottom: '30px' }}>
+          <h2 style={{ marginBottom: '15px' }}>Disease Hotspots</h2>
+          <OfficerMap />
         </section>
 
         <div className="phase-grid">

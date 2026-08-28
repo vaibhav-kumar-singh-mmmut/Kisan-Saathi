@@ -73,3 +73,10 @@ backend/alembic.ini.local
 *.secret
 *_credentials.json
 service-account*.json
+
+# ---------- Local DB and Test Files ----------
+*.db
+*.sqlite3
+*.jpg
+*.png
+front.md

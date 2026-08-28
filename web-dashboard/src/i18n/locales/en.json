@@ -30,7 +30,15 @@
     "retake": "Choose Another Photo",
     "gps_fetching": "📍 Getting GPS…",
     "gps_unavailable": "📍 GPS unavailable",
-    "narration": "Take a clear photo of the diseased leaf, or upload from your gallery. Make sure there is good light."
+    "narration": "Take a clear photo of the diseased leaf, or upload from your gallery. Make sure there is good light.",
+    "sync_complete": "Pending scans synchronized.",
+    "saved_offline": "Saved offline. Will sync when connected.",
+    "offline_title": "Saved Offline",
+    "offline_desc": "Your scan has been saved. It will automatically upload when you reconnect to the internet.",
+    "scan_another": "Scan Another Crop",
+    "pending_sync": "scan(s) pending sync",
+    "mismatch_warning": "Photo seems older than 24h. Officer might review it.",
+    "save_offline": "Save Offline"
   },
 
   "reports": {

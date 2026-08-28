@@ -5,7 +5,7 @@ Pathogen type classification: user-approved mapping (see implementation_plan.md)
 Usage: python -m app.db.seed_disease_lookup
 """
 import json
-import sys
+
 from pathlib import Path
 
 from sqlalchemy import create_engine

@@ -57,6 +57,7 @@ def seed_villages(db_url: str) -> dict:
         )
         session.add(district)
         counts["jurisdictions"] += 1
+        session.flush()
 
         jur_map = {"district": district_id}
 
@@ -70,6 +71,7 @@ def seed_villages(db_url: str) -> dict:
             session.add(tehsil)
             counts["jurisdictions"] += 1
             jur_map["tehsil"] = tehsil_id
+            session.flush()
 
             for block_data in tehsil_data["blocks"]:
                 block_id = _new_id()
@@ -80,6 +82,7 @@ def seed_villages(db_url: str) -> dict:
                 )
                 session.add(block)
                 counts["jurisdictions"] += 1
+                session.flush()
 
                 if block_data["name"] == "Bakshi Ka Talab":
                     jur_map["block_bkt"] = block_id
@@ -98,6 +101,7 @@ def seed_villages(db_url: str) -> dict:
                     session.add(village)
                     counts["jurisdictions"] += 1
                     jur_map[v["ref"]] = village_id
+                    session.flush()
 
                     # -- 2. Farmers (2 per village) --
                     farmer_ids = []
@@ -112,6 +116,7 @@ def seed_villages(db_url: str) -> dict:
                         session.add(farmer)
                         farmer_ids.append(fid)
                         counts["farmers"] += 1
+                    session.flush()
 
                     # -- 3. Crop entry --
                     crop_entry = CropEntry(
