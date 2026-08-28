@@ -1,0 +1,9 @@
+fastapi==0.115.14
+uvicorn[standard]==0.34.3
+pillow==11.3.0
+python-multipart==0.0.20
+numpy==2.3.1
+# Phase 5 — uncomment after training:
+# torch==2.7.1
+# torchvision==0.22.1
+# onnxruntime==1.22.0

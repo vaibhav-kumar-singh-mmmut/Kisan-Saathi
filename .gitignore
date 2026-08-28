@@ -53,3 +53,23 @@ logs/
 *.bak
 .cache/
 coverage/
+
+# ---------- ML model weights (never commit) ----------
+ml-model/models/*.pt
+ml-model/models/*.onnx
+ml-model/models/*.h5
+ml-model/data/
+
+# ---------- React Native ----------
+mobile-app/android/
+mobile-app/ios/
+mobile-app/.gradle/
+mobile-app/local.properties
+
+# ---------- Alembic ----------
+backend/alembic.ini.local
+
+# ---------- Secret / credential files ----------
+*.secret
+*_credentials.json
+service-account*.json

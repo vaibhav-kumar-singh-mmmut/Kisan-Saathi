@@ -176,3 +176,53 @@ Updated model deployed to inference service
         v
 Accuracy improves on real Indian field conditions over lab-trained baseline
 ```
+# MVP Module Map (M1-M5)
+
+Simplified module view for demos/pitches — maps directly onto the phases in
+AI_AGENT_BUILD_PROMPT.md and the detailed flows above.
+
+```
+FARMER
+  v
+Register Crop & Field  (crop_entries, synced/entered per Phase 1/12)
+  v
+Upload Image           (Phase 3/4)
+  v
+AI Disease Detection   (Phase 4/5)
+  v
+        +------------------+------------------+
+        v                                     v
+  Confidence Score              Weather + Crop Stage + GPS
+        \___________  ___________/
+                    v v
+              RISK ENGINE          <- M2: Crop Risk Radar (Phase 8-9)
+                    |
+        +-----------+-----------+
+        v                       v
+  Low/Med Risk              High Risk
+        v                       v
+    Monitor              Action Plan          <- M3: Smart Advisory (Phase 6)
+                              v
+                      Save Field Report
+                              v
+                    Geo Hotspot Engine         <- M4: Geo Disease Hotspot Maps (Phase 8)
+                              v
+                    Officer Dashboard          (Phase 9)
+                              v
+                    Expert Validation          <- M5: Expert Validation Loop (Phase 7)
+                              v
+                    Confirmed Field Data       (feeds retraining_data, Phase 7)
+```
+
+## Module -> Build Prompt Phase Mapping
+| Module | Name | Corresponding Phase(s) |
+|---|---|---|
+| M1 | AI Crop Doctor | Phase 3 (capture/geotag) + Phase 4 (ML inference) + Phase 5 (advisory) |
+| M2 | Crop Risk Radar | Phase 8 (zone scoring) + Phase 9 (officer map) + Phase 10 (weather/flood) |
+| M3 | Smart Advisory | Phase 5-6 (pathogen-branched advisory + expert queue entry point) |
+| M4 | Geo Disease Hotspot Maps | Phase 8-9 (zone scoring service + hotspot map) |
+| M5 | Expert Validation Loop | Phase 7 (expert queue, confirm/correct, feeds retraining_data) |
+
+This M1-M5 grouping is a good level to present at in a demo — five clear
+modules instead of 14 build phases — while the underlying phases remain the
+actual implementation checklist for your AI agent.
