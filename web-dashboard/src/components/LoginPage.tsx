@@ -98,22 +98,71 @@ export default function LoginPage({ onNavigateToSignup }: { onNavigateToSignup?:
         )}
 
         {step === 'phone' ? (
-          <form onSubmit={handleRequestOTP}>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-2)' }}>Phone Number</label>
+          <form onSubmit={handleRequestOTP} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  setPhone('+91124567890');
+                  // We must defer the submit slightly so state updates
+                  setTimeout(() => {
+                    const event = new Event('submit', { bubbles: true, cancelable: true });
+                    e.currentTarget.form?.dispatchEvent(event);
+                  }, 50);
+                }}
+                style={{
+                  flex: 1,
+                  background: 'var(--surface-2)',
+                  color: 'var(--text)',
+                  border: '1px solid var(--border)',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.85rem'
+                }}
+              >
+                🌾 Login as Farmer
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  setPhone('+91123456789');
+                  setTimeout(() => {
+                    const event = new Event('submit', { bubbles: true, cancelable: true });
+                    e.currentTarget.form?.dispatchEvent(event);
+                  }, 50);
+                }}
+                style={{
+                  flex: 1,
+                  background: 'var(--surface-2)',
+                  color: 'var(--text)',
+                  border: '1px solid var(--border)',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.85rem'
+                }}
+              >
+                🏛️ Login as Official
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={{ fontSize: '0.9rem', color: 'var(--text-2)' }}>Phone Number</label>
               <input
                 type="tel"
                 value={phone}
-                onChange={e => setPhone(e.target.value)}
+                onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91..."
                 disabled={isLoading}
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  background: 'var(--surface-2)',
+                  background: 'var(--bg)',
                   border: '1px solid var(--border-2)',
-                  borderRadius: '8px',
                   color: 'var(--text)',
+                  padding: '12px',
+                  borderRadius: '8px',
                   fontSize: '1rem',
                   outline: 'none'
                 }}
@@ -176,6 +225,32 @@ export default function LoginPage({ onNavigateToSignup }: { onNavigateToSignup?:
             >
               {isLoading ? 'Verifying...' : 'Verify & Login'}
             </button>
+            {devCode && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  setOtp(devCode);
+                  setTimeout(() => {
+                    const event = new Event('submit', { bubbles: true, cancelable: true });
+                    e.currentTarget.form?.dispatchEvent(event);
+                  }, 50);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'var(--surface-2)',
+                  color: 'var(--text)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  marginTop: '10px'
+                }}
+              >
+                🪄 Auto-Fill OTP & Login
+              </button>
+            )}
             <button
               type="button"
               onClick={() => { setStep('phone'); setOtp(''); setDevCode(undefined); setError(''); }}
