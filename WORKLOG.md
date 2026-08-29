@@ -246,3 +246,64 @@ test_dashboard_dm_scope PASSED            ← DM sees all district villages
 
 **Remaining risk for this phase:**
 - Currently, the queue sorting is global (urgency) but does not filter by the expert's specific `jurisdiction_id` since experts might only validate for their local district. Future refinement may add jurisdiction scope filtering to the `GET` endpoint.
+
+---
+
+## Phase 8 — Zone Scoring Service ✅
+
+**Date/Time:** 2026-08-28
+**Tool/Agent:** Antigravity AI
+**What happened:**
+- Implemented `zone_scoring_service.py` to calculate composite village outbreak risk: report count, severity, week-over-week velocity, acreage affected, and weather triggers.
+- Built alert fatigue suppression: unchanged zone color transitions do not fire duplicate officer/farmer alerts.
+- Added spread-path risk calculation (`Incoming Risk`) for downstream villages within disease spread radius matching wind direction.
+- Test coverage in `tests/test_zone_scoring.py` (4/4 tests green).
+
+---
+
+## Phase 9 & 10 — Officer Dashboard Map & Weather/Flood Layer ✅
+
+**Date/Time:** 2026-08-28
+**Tool/Agent:** Antigravity AI
+**What happened:**
+- PostGIS + Leaflet hotspot surveillance map (`/api/v1/map/hotspots`) with zone colors, Incoming Risk rings, and provider toggles (CARTO, Satellite, OSM, Mappls).
+- Integrated Open-Meteo & IMD weather radar (`/api/v1/weather/{village_id}`) with real-time temperature, humidity, rainfall, and disease trigger alerts.
+- Scoped server-side to officer jurisdiction (DM vs Tehsildar vs Lekhpal vs AgriOfficer).
+
+---
+
+## Phase 11 — Subsidy / PMFBY + Camp + Drone Booking ✅
+
+**Date/Time:** 2026-08-28
+**Tool/Agent:** Antigravity AI
+**What happened:**
+- Implemented `subsidy_service.py` and endpoints for PMFBY statutory flags (`/api/v1/subsidy/flags`) and proximity-routed Drone Bookings (`/api/v1/subsidy/drone-book`).
+- Enforced minimum threshold of independent confirmed reports (≥3 reports, ≥2 unique farmers) before enabling PMFBY flags.
+- Built immutable audit trail for BDO subsidy approvals with 72-hour window timers.
+- Test coverage in `tests/test_subsidy.py` (5/5 tests green).
+
+---
+
+## Phase 12 — AgriStack Sync + Post-Harvest Storage Suggestion ✅
+
+**Date/Time:** 2026-08-29
+**Tool/Agent:** Antigravity AI (Gemini 3.7 Flash)
+**What happened:**
+- Created `CropDiscrepancy` ORM model (`backend/app/models/crop_discrepancy.py`) to support statutory ground-truth dispute filing by revenue officials.
+- Built `agristack_service.py` with UFSI Crop Sown Registry synchronization connector (`POST /api/v1/agristack/sync`) setting `synced_from_agristack=True` across registered farm parcels.
+- Created `post_harvest_service.py` rule engine: evaluates Green Zone farmers harvesting pulses (`chickpea`, `lentil`, `moong`, `pea`, `pigeon_pea`) and oilseeds (`mustard`), providing WDRA warehouse holding recommendations (~18% price-dip avoidance) and 70% e-NWR pledge loans at subsidized 4% p.a. interest.
+- Implemented RBAC checks restricting crop discrepancy submissions (`POST /api/v1/agristack/discrepancies`) strictly to revenue officials (`Lekhpal/Patwari`, `Kanungo`, `Tehsildar`, `DM`).
+- Added dedicated **AgriStack & WDRA Storage Engine** tab in `OfficerDashboard.tsx` with live sync trigger, dynamic crop catalogue, discrepancy logging, and WDRA storage simulator.
+- Added Post-Harvest WDRA warehouse advisory card to `FarmerShell.tsx` in both English and Hindi.
+- Built TDD test suite `tests/test_agristack_sync.py` covering UFSI sync, catalogue querying, discrepancy RBAC validation, and WDRA advisory generation.
+
+**Gate verification:**
+- ✅ `test_agristack_sync_populates_crop_entries`: UFSI sync writes parcels with `synced_from_agristack=True`.
+- ✅ `test_get_crop_catalogue`: Officer crop catalogue populated directly from synced entries.
+- ✅ `test_lekhpal_create_crop_discrepancy_authorized`: Lekhpal / Kanungo role succeeds in filing statutory discrepancy.
+- ✅ `test_non_revenue_create_crop_discrepancy_forbidden`: Non-revenue roles receive HTTP 403 Forbidden.
+- ✅ `test_wdra_storage_suggestion_green_zone_pulse`: Green Zone pulses yield `STORE_WDRA` with 70% e-NWR pledge loan @ 4% rate and regional CWC/SWC warehouse locations.
+- ✅ `test_wdra_storage_suggestion_red_zone_suppressed`: Red Zone diseased areas suppress seed storage and route to PMFBY / local mandi disposal.
+- ✅ Full regression test suite: 33/33 tests passing.
+- ✅ Frontend TypeScript build (`npm run build`) compiles cleanly in 180ms with 0 errors.
+

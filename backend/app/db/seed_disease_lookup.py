@@ -4,6 +4,7 @@ Pathogen type classification: user-approved mapping (see implementation_plan.md)
 
 Usage: python -m app.db.seed_disease_lookup
 """
+
 import json
 
 from pathlib import Path
@@ -11,9 +12,14 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-# Resolve project root
-PROJECT_ROOT = Path(__file__).resolve().parents[3]  # backend/../..
-DISEASE_JSON = PROJECT_ROOT / "disease_lookup.json"
+# Resolve project root / disease_lookup.json path
+_candidates = [
+    Path(__file__).resolve().parents[3] / "disease_lookup.json",
+    Path(__file__).resolve().parents[2] / "disease_lookup.json",
+    Path("/app/disease_lookup.json"),
+    Path("./disease_lookup.json"),
+]
+DISEASE_JSON = next((p for p in _candidates if p.exists()), _candidates[0])
 
 # ── Approved pathogen_type map (verified by user before seeding) ──────────────
 # fungal=26, insect=7, viral=1, bacterial=3, nematode=1
@@ -76,7 +82,7 @@ PATHOGEN_TYPE_MAP = {
 SECONDARY_NOTES = {
     "mustard_pests_diseases": {
         "note": "Mixed entry: Aphid (insect) + Alternaria Blight (fungal) + White Rust (fungal). "
-                "Primary pathogen_type = insect. All ipm_steps cover all three sub-pathogens.",
+        "Primary pathogen_type = insect. All ipm_steps cover all three sub-pathogens.",
         "sub_pathogens": [
             {"name": "Aphid", "type": "insect"},
             {"name": "Alternaria Blight", "type": "fungal"},
@@ -141,4 +147,5 @@ def seed_disease_lookup(db_url: str) -> int:
 
 if __name__ == "__main__":
     from app.core.config import settings
+
     seed_disease_lookup(settings.DB_URL)

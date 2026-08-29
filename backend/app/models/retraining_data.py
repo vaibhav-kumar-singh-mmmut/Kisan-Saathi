@@ -2,6 +2,7 @@
 RetrainingData model — expert corrections feeding ML retraining pipeline.
 M5 (Expert Validation Loop).
 """
+
 import uuid
 from datetime import datetime, timezone
 
@@ -46,4 +47,6 @@ class RetrainingData(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<RetrainingData {self.original_disease_id}->{self.corrected_disease_id}>"
+        return (
+            f"<RetrainingData {self.original_disease_id}->{self.corrected_disease_id}>"
+        )

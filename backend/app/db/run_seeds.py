@@ -5,6 +5,7 @@ Usage:
   cd backend
   python -m app.db.run_seeds
 """
+
 import sys
 from pathlib import Path
 
@@ -16,10 +17,20 @@ from sqlalchemy import create_engine
 
 from app.core.config import settings
 from app.core.database import Base
+
 # Import all models so Base.metadata knows about every table
 from app.models import (  # noqa: F401
-    Jurisdiction, Official, Farmer, CropEntry, DiseaseLookup,
-    DiseaseReport, WeatherDaily, ZoneStatus, SubsidyFlag, RetrainingData,
+    Jurisdiction,
+    Official,
+    Farmer,
+    CropEntry,
+    DiseaseLookup,
+    DiseaseReport,
+    WeatherDaily,
+    ZoneStatus,
+    SubsidyFlag,
+    DroneBooking,
+    RetrainingData,
 )
 from app.db.seed_disease_lookup import seed_disease_lookup
 from app.db.seed_villages import seed_villages

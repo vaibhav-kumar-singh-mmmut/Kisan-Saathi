@@ -4,6 +4,7 @@ OTP utility — 6-digit code, 5-min TTL, in-memory store.
 Production swap: replace the _otp_store dict with Redis (SETEX + GET + DEL).
 The interface stays identical so auth_service.py doesn't need changes.
 """
+
 import random
 import string
 from datetime import datetime, timedelta, timezone
@@ -20,7 +21,8 @@ def generate_otp(phone: str) -> str:
     code = "".join(random.choices(string.digits, k=6))
     _otp_store[phone] = {
         "code": code,
-        "expires_at": datetime.now(timezone.utc) + timedelta(seconds=settings.OTP_TTL_SECONDS),
+        "expires_at": datetime.now(timezone.utc)
+        + timedelta(seconds=settings.OTP_TTL_SECONDS),
     }
     return code
 

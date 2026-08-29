@@ -12,6 +12,7 @@ MVP Module Map (high-level architecture reference):
 See PRODUCTION_WORKFLOW.md § MVP Module Map and AI_AGENT_BUILD_PROMPT.md for
 the full phase checklist.
 """
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -20,10 +21,15 @@ from app.core.config import settings
 from app.api.v1.router import api_router
 
 
+from app.core.database import Base, engine
+import app.models  # noqa: F401
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown lifecycle."""
     print(f"[Kisan Saathi] Starting in '{settings.APP_ENV}' mode …")
+    Base.metadata.create_all(bind=engine)
     yield
     print("[Kisan Saathi] Shutting down …")
 

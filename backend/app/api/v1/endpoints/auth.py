@@ -7,16 +7,20 @@ GET  /api/v1/auth/me           — return current user info from JWT
 
 The `/health` endpoint remains in main.py — open, no auth, unchanged.
 """
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.schemas.auth import (
-    OTPRequest, OTPRequestResponse,
-    OTPVerify, TokenResponse,
+    OTPRequest,
+    OTPRequestResponse,
+    OTPVerify,
+    TokenResponse,
     UserMe,
+    SignupRequest,
 )
-from app.services.auth_service import request_otp, verify_otp_and_login
+from app.services.auth_service import request_otp, verify_otp_and_login, signup_user
 from app.utils.jurisdiction_scope import CurrentUser
 
 router = APIRouter()
@@ -68,3 +72,15 @@ def me(current_user: CurrentUser):
         jurisdiction_type=current_user["jurisdiction_type"],
         jurisdiction_id=current_user.get("jurisdiction_id"),
     )
+
+
+@router.post(
+    "/signup",
+    summary="Register a new user",
+    description="Register a new Farmer or Official. Auto-assigns jurisdiction.",
+)
+def signup(
+    body: SignupRequest,
+    db: Session = Depends(get_db),
+):
+    return signup_user(body, db)

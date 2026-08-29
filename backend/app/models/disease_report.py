@@ -3,6 +3,7 @@ DiseaseReport model — farmer-submitted crop scan result.
 M1 (AI Crop Doctor): created when farmer submits image -> ML inference.
 M5 (Expert Validation Loop): expert_id set when KVK/Lab expert reviews.
 """
+
 import uuid
 from datetime import datetime, timezone
 

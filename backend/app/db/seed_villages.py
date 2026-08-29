@@ -7,6 +7,7 @@ Then populates all related tables.
 
 Usage: python -m app.db.seed_villages
 """
+
 import json
 import uuid
 from datetime import date, datetime, timedelta, timezone
@@ -16,12 +17,22 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from app.models import (
-    Jurisdiction, Official, Farmer, CropEntry,
-    DiseaseReport, WeatherDaily, ZoneStatus,
+    Jurisdiction,
+    Official,
+    Farmer,
+    CropEntry,
+    DiseaseReport,
+    WeatherDaily,
+    ZoneStatus,
 )
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-VILLAGES_JSON = PROJECT_ROOT / "seed-data" / "villages.json"
+_candidates = [
+    Path(__file__).resolve().parents[3] / "seed-data" / "villages.json",
+    Path(__file__).resolve().parents[2] / "seed-data" / "villages.json",
+    Path("/app/seed-data/villages.json"),
+    Path("./seed-data/villages.json"),
+]
+VILLAGES_JSON = next((p for p in _candidates if p.exists()), _candidates[0])
 
 
 def _new_id() -> str:
@@ -41,19 +52,38 @@ def seed_villages(db_url: str) -> dict:
     engine = create_engine(sync_url)
 
     counts = {
-        "jurisdictions": 0, "officials": 0, "farmers": 0,
-        "crop_entries": 0, "disease_reports": 0,
-        "weather_daily": 0, "zone_status": 0,
+        "jurisdictions": 0,
+        "officials": 0,
+        "farmers": 0,
+        "crop_entries": 0,
+        "disease_reports": 0,
+        "weather_daily": 0,
+        "zone_status": 0,
     }
 
     with Session(engine) as session:
+        if session.query(Jurisdiction).count() > 0:
+            print("  [INFO] Jurisdictions table already populated, skipping village re-seed.")
+            return {
+                "jurisdictions": session.query(Jurisdiction).count(),
+                "officials": session.query(Official).count(),
+                "farmers": session.query(Farmer).count(),
+                "crop_entries": session.query(CropEntry).count(),
+                "disease_reports": session.query(DiseaseReport).count(),
+                "weather_daily": session.query(WeatherDaily).count(),
+                "zone_status": session.query(ZoneStatus).count(),
+            }
+
         # -- 1. Jurisdiction tree --
         district_data = data["district"]
         district_id = _new_id()
         district = Jurisdiction(
-            id=district_id, name=district_data["name"],
-            jurisdiction_type="district", parent_id=None,
-            state=district_data["state"], district_name=district_data["name"],
+            id=district_id,
+            name=district_data["name"],
+            jurisdiction_type="district",
+            parent_id=None,
+            state=district_data["state"],
+            district_name=district_data["name"],
         )
         session.add(district)
         counts["jurisdictions"] += 1
@@ -64,9 +94,12 @@ def seed_villages(db_url: str) -> dict:
         for tehsil_data in data["tehsils"]:
             tehsil_id = _new_id()
             tehsil = Jurisdiction(
-                id=tehsil_id, name=tehsil_data["name"],
-                jurisdiction_type="tehsil", parent_id=district_id,
-                state=district_data["state"], district_name=district_data["name"],
+                id=tehsil_id,
+                name=tehsil_data["name"],
+                jurisdiction_type="tehsil",
+                parent_id=district_id,
+                state=district_data["state"],
+                district_name=district_data["name"],
             )
             session.add(tehsil)
             counts["jurisdictions"] += 1
@@ -76,9 +109,12 @@ def seed_villages(db_url: str) -> dict:
             for block_data in tehsil_data["blocks"]:
                 block_id = _new_id()
                 block = Jurisdiction(
-                    id=block_id, name=block_data["name"],
-                    jurisdiction_type="block", parent_id=tehsil_id,
-                    state=district_data["state"], district_name=district_data["name"],
+                    id=block_id,
+                    name=block_data["name"],
+                    jurisdiction_type="block",
+                    parent_id=tehsil_id,
+                    state=district_data["state"],
+                    district_name=district_data["name"],
                 )
                 session.add(block)
                 counts["jurisdictions"] += 1
@@ -92,11 +128,14 @@ def seed_villages(db_url: str) -> dict:
                 for v in block_data["villages"]:
                     village_id = _new_id()
                     village = Jurisdiction(
-                        id=village_id, name=v["name"],
-                        jurisdiction_type="village", parent_id=block_id,
+                        id=village_id,
+                        name=v["name"],
+                        jurisdiction_type="village",
+                        parent_id=block_id,
                         state=district_data["state"],
                         district_name=district_data["name"],
-                        lat=v.get("lat"), lon=v.get("lon"),
+                        lat=v.get("lat"),
+                        lon=v.get("lon"),
                     )
                     session.add(village)
                     counts["jurisdictions"] += 1
@@ -147,10 +186,17 @@ def seed_villages(db_url: str) -> dict:
                                 confidence_score=v.get("confidence_avg", 0.8),
                                 gps_lat=float(v.get("lat", 0)),
                                 gps_lon=float(v.get("lon", 0)),
-                                status="confirmed" if v.get("confidence_avg", 0.8) >= 0.70 else "pending",
+                                status=(
+                                    "confirmed"
+                                    if v.get("confidence_avg", 0.8) >= 0.70
+                                    else "pending"
+                                ),
                                 reported_at=base_date + timedelta(hours=r * 12),
-                                confirmed_at=(base_date + timedelta(hours=r * 12 + 2))
-                                    if v.get("confidence_avg", 0.8) >= 0.70 else None,
+                                confirmed_at=(
+                                    (base_date + timedelta(hours=r * 12 + 2))
+                                    if v.get("confidence_avg", 0.8) >= 0.70
+                                    else None
+                                ),
                             )
                             session.add(report)
                             counts["disease_reports"] += 1
@@ -170,7 +216,8 @@ def seed_villages(db_url: str) -> dict:
                                 gps_lat=float(v.get("lat", 0)),
                                 gps_lon=float(v.get("lon", 0)),
                                 reported_at=_now() - timedelta(days=5, hours=r * 6),
-                                confirmed_at=_now() - timedelta(days=5, hours=r * 6 - 1),
+                                confirmed_at=_now()
+                                - timedelta(days=5, hours=r * 6 - 1),
                             )
                             session.add(report)
                             counts["disease_reports"] += 1
@@ -247,7 +294,9 @@ def seed_villages(db_url: str) -> dict:
 
 def _zone_score(color: str) -> float:
     """Mock score for expected zones."""
-    return {"green": 15.0, "orange": 55.0, "red": 85.0, "incoming_risk": 70.0}.get(color, 0)
+    return {"green": 15.0, "orange": 55.0, "red": 85.0, "incoming_risk": 70.0}.get(
+        color, 0
+    )
 
 
 def _print_verification(data: dict):
@@ -275,4 +324,5 @@ def _print_verification(data: dict):
 
 if __name__ == "__main__":
     from app.core.config import settings
+
     seed_villages(settings.DB_URL)

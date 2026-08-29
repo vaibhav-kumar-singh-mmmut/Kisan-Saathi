@@ -9,6 +9,7 @@ Design: ONE route for ALL roles. The jurisdiction_service resolves the
 village ID scope from the caller's JWT; the DB query is then filtered
 to only those IDs. No per-role branching in this file.
 """
+
 from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
@@ -38,8 +39,12 @@ router = APIRouter()
 def get_villages(
     current_user: CurrentUser,
     db: Session = Depends(get_db),
-    zone: Optional[str] = Query(None, description="Filter by zone color: red/orange/green/incoming_risk"),
-    crop: Optional[str] = Query(None, description="Filter by crop name (partial match)"),
+    zone: Optional[str] = Query(
+        None, description="Filter by zone color: red/orange/green/incoming_risk"
+    ),
+    crop: Optional[str] = Query(
+        None, description="Filter by crop name (partial match)"
+    ),
 ):
     role = current_user["role"]
     jurisdiction_id = current_user.get("jurisdiction_id", "")
@@ -67,12 +72,16 @@ def get_villages(
     # Apply optional zone filter (join zone_status)
     if zone:
         # Get village IDs with the requested zone color
-        zone_rows = db.execute(
-            select(ZoneStatus.jurisdiction_id).where(
-                ZoneStatus.color == zone,
-                ZoneStatus.jurisdiction_id.in_(allowed_ids),
+        zone_rows = (
+            db.execute(
+                select(ZoneStatus.jurisdiction_id).where(
+                    ZoneStatus.color == zone,
+                    ZoneStatus.jurisdiction_id.in_(allowed_ids),
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         zone_set = set(zone_rows)
         villages = [v for v in villages if v.id in zone_set]
 
@@ -81,18 +90,26 @@ def get_villages(
     # the CropEntry table if crop param is provided.
     if crop:
         from app.models.crop_entry import CropEntry
-        crop_village_ids = db.execute(
-            select(CropEntry.farmer_id).where(
-                CropEntry.crop_name.ilike(f"%{crop}%")
+
+        crop_village_ids = (
+            db.execute(
+                select(CropEntry.farmer_id).where(
+                    CropEntry.crop_name.ilike(f"%{crop}%")
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         # Get the jurisdiction_id for farmers matching those IDs
         from app.models.farmer import Farmer
-        farmer_juris = db.execute(
-            select(Farmer.jurisdiction_id).where(
-                Farmer.id.in_(crop_village_ids)
+
+        farmer_juris = (
+            db.execute(
+                select(Farmer.jurisdiction_id).where(Farmer.id.in_(crop_village_ids))
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         crop_village_set = set(farmer_juris)
         villages = [v for v in villages if v.id in crop_village_set]
 

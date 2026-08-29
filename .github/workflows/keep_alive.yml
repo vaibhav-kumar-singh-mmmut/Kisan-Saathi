@@ -1,0 +1,17 @@
+name: Keep Render Service Awake
+
+on:
+  schedule:
+    - cron: '*/10 * * * *' # Runs every 10 minutes
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  ping-render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend API
+        run: |
+          curl -s https://kisan-saathi-api.onrender.com/health || echo "Ping failed"
+      - name: Ping Frontend Site
+        run: |
+          curl -s https://kisan-saathi-frontend.onrender.com/ || echo "Ping failed"

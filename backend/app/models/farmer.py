@@ -2,6 +2,7 @@
 Farmer model — mobile app user, village-scoped.
 M1 (AI Crop Doctor): farmers submit disease reports via the mobile app.
 """
+
 import uuid
 from datetime import datetime, timezone
 

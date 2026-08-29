@@ -1,0 +1,37 @@
+services:
+  # 1. Backend + ML Inference Service
+  - type: web
+    name: kisan-saathi-api
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: .
+    plan: starter # ML ONNX models usually require more than 512MB RAM
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DB_URL
+        fromDatabase:
+          name: kisan-saathi-db
+          property: connectionString
+      - key: ALLOWED_ORIGINS
+        value: "https://kisan-saathi-frontend.onrender.com,http://localhost:5173"
+
+  # 2. Frontend React/Vite Dashboard
+  - type: web
+    name: kisan-saathi-frontend
+    env: static
+    buildCommand: cd web-dashboard && npm install && npm run build
+    staticPublishPath: web-dashboard/dist
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: kisan-saathi-api
+          property: url
+
+databases:
+  # 3. PostgreSQL Database
+  - name: kisan-saathi-db
+    plan: free
+    region: singapore # Standard region, will default if unavailable

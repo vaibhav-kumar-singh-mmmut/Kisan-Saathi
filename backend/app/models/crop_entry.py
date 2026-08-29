@@ -2,6 +2,7 @@
 CropEntry model — what a farmer is currently growing.
 M1/M2: drives zone scoring's affected_area_pct calculation (Phase 8).
 """
+
 import uuid
 from datetime import datetime, timezone
 
@@ -28,7 +29,7 @@ class CropEntry(Base):
     growth_stage = Column(String(40), nullable=True)
     sowing_date = Column(Date, nullable=True)
     harvest_date = Column(Date, nullable=True)
-    season = Column(String(10), nullable=False)     # rabi/kharif/zaid
+    season = Column(String(10), nullable=False)  # rabi/kharif/zaid
     synced_from_agristack = Column(Boolean, nullable=False, default=False)
     created_at = Column(
         DateTime(timezone=True),

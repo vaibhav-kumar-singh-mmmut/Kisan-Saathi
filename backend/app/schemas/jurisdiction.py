@@ -1,12 +1,14 @@
 """
 Pydantic v2 schemas for jurisdiction / dashboard endpoints.
 """
+
 from typing import Optional
 from pydantic import BaseModel
 
 
 class VillageSummary(BaseModel):
     """Village row returned by GET /dashboard/villages."""
+
     id: str
     name: str
     jurisdiction_type: str

@@ -14,6 +14,7 @@ Tests:
 Uses an in-memory SQLite DB seeded with minimal data matching the Phase 1 scenarios.
 No real network calls. OTP store is the module-level dict (reset between tests).
 """
+
 import pytest
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy import create_engine
@@ -21,7 +22,9 @@ from sqlalchemy.orm import Session
 
 from app.core.database import Base
 from app.models import (
-    Jurisdiction, Official, Farmer,
+    Jurisdiction,
+    Official,
+    Farmer,
 )
 
 from sqlalchemy.pool import StaticPool
@@ -44,43 +47,73 @@ def setup_test_db():
     with Session(_TEST_ENGINE) as session:
         # Jurisdiction tree: district -> tehsil -> block -> villages
         district = Jurisdiction(
-            id="dist-001", name="Lucknow", jurisdiction_type="district",
-            parent_id=None, state="Uttar Pradesh", district_name="Lucknow",
+            id="dist-001",
+            name="Lucknow",
+            jurisdiction_type="district",
+            parent_id=None,
+            state="Uttar Pradesh",
+            district_name="Lucknow",
         )
         tehsil = Jurisdiction(
-            id="teh-001", name="Sarojini Nagar", jurisdiction_type="tehsil",
-            parent_id="dist-001", state="Uttar Pradesh", district_name="Lucknow",
+            id="teh-001",
+            name="Sarojini Nagar",
+            jurisdiction_type="tehsil",
+            parent_id="dist-001",
+            state="Uttar Pradesh",
+            district_name="Lucknow",
         )
         block = Jurisdiction(
-            id="blk-001", name="Mohanlalganj", jurisdiction_type="block",
-            parent_id="teh-001", state="Uttar Pradesh", district_name="Lucknow",
+            id="blk-001",
+            name="Mohanlalganj",
+            jurisdiction_type="block",
+            parent_id="teh-001",
+            state="Uttar Pradesh",
+            district_name="Lucknow",
         )
         village_a = Jurisdiction(
-            id="vil-001", name="Rampur Khurd", jurisdiction_type="village",
-            parent_id="blk-001", state="Uttar Pradesh", district_name="Lucknow",
+            id="vil-001",
+            name="Rampur Khurd",
+            jurisdiction_type="village",
+            parent_id="blk-001",
+            state="Uttar Pradesh",
+            district_name="Lucknow",
         )
         village_b = Jurisdiction(
-            id="vil-002", name="Sonbarsa", jurisdiction_type="village",
-            parent_id="blk-001", state="Uttar Pradesh", district_name="Lucknow",
+            id="vil-002",
+            name="Sonbarsa",
+            jurisdiction_type="village",
+            parent_id="blk-001",
+            state="Uttar Pradesh",
+            district_name="Lucknow",
         )
         session.add_all([district, tehsil, block, village_a, village_b])
 
         # Officials
         dm = Official(
-            id="off-001", name="Arvind Kumar Singh", phone="+919001000001",
-            role="DM", wing="revenue", jurisdiction_type="district",
+            id="off-001",
+            name="Arvind Kumar Singh",
+            phone="+919001000001",
+            role="DM",
+            wing="revenue",
+            jurisdiction_type="district",
             jurisdiction_id="dist-001",
         )
         tehsildar = Official(
-            id="off-002", name="Priya Sharma", phone="+919001000002",
-            role="Tehsildar", wing="revenue", jurisdiction_type="tehsil",
+            id="off-002",
+            name="Priya Sharma",
+            phone="+919001000002",
+            role="Tehsildar",
+            wing="revenue",
+            jurisdiction_type="tehsil",
             jurisdiction_id="teh-001",
         )
         session.add_all([dm, tehsildar])
 
         # Farmer
         farmer = Farmer(
-            id="far-001", name="Farmer V1-1", phone="+9190100001",
+            id="far-001",
+            name="Farmer V1-1",
+            phone="+9190100001",
             jurisdiction_id="vil-001",
         )
         session.add(farmer)
@@ -95,6 +128,7 @@ def setup_test_db():
 def clear_otp_store():
     """Reset the in-memory OTP store between tests to prevent leakage."""
     from app.utils import otp as otp_module
+
     otp_module._otp_store.clear()
     yield
     otp_module._otp_store.clear()
@@ -118,23 +152,31 @@ def app_with_test_db():
 
 # ── Helper: get a valid JWT for a seeded phone ────────────────────────────────
 
+
 async def _get_token(client: AsyncClient, phone: str) -> str:
     """Request OTP, extract dev_code, verify it, return access_token."""
     r1 = await client.post("/api/v1/auth/otp/request", json={"phone": phone})
     assert r1.status_code == 200, f"OTP request failed: {r1.text}"
     code = r1.json()["dev_code"]
-    r2 = await client.post("/api/v1/auth/otp/verify", json={"phone": phone, "code": code})
+    r2 = await client.post(
+        "/api/v1/auth/otp/verify", json={"phone": phone, "code": code}
+    )
     assert r2.status_code == 200, f"OTP verify failed: {r2.text}"
     return r2.json()["access_token"]
 
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.anyio
 async def test_otp_request_known_official(app_with_test_db):
     """1. Known official phone → 200, otp_sent=True, dev_code present."""
-    async with AsyncClient(transport=ASGITransport(app=app_with_test_db), base_url="http://test") as client:
-        r = await client.post("/api/v1/auth/otp/request", json={"phone": "+919001000001"})
+    async with AsyncClient(
+        transport=ASGITransport(app=app_with_test_db), base_url="http://test"
+    ) as client:
+        r = await client.post(
+            "/api/v1/auth/otp/request", json={"phone": "+919001000001"}
+        )
     assert r.status_code == 200
     data = r.json()
     assert data["otp_sent"] is True
@@ -145,15 +187,21 @@ async def test_otp_request_known_official(app_with_test_db):
 @pytest.mark.anyio
 async def test_otp_request_unknown_phone(app_with_test_db):
     """2. Unknown phone → 404."""
-    async with AsyncClient(transport=ASGITransport(app=app_with_test_db), base_url="http://test") as client:
-        r = await client.post("/api/v1/auth/otp/request", json={"phone": "+910000000000"})
+    async with AsyncClient(
+        transport=ASGITransport(app=app_with_test_db), base_url="http://test"
+    ) as client:
+        r = await client.post(
+            "/api/v1/auth/otp/request", json={"phone": "+910000000000"}
+        )
     assert r.status_code == 404
 
 
 @pytest.mark.anyio
 async def test_otp_verify_wrong_code(app_with_test_db):
     """3. Wrong OTP code → 401."""
-    async with AsyncClient(transport=ASGITransport(app=app_with_test_db), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app_with_test_db), base_url="http://test"
+    ) as client:
         await client.post("/api/v1/auth/otp/request", json={"phone": "+919001000001"})
         r = await client.post(
             "/api/v1/auth/otp/verify",
@@ -165,8 +213,12 @@ async def test_otp_verify_wrong_code(app_with_test_db):
 @pytest.mark.anyio
 async def test_otp_verify_correct_code(app_with_test_db):
     """4. Correct OTP → 200, access_token present, role=DM."""
-    async with AsyncClient(transport=ASGITransport(app=app_with_test_db), base_url="http://test") as client:
-        r1 = await client.post("/api/v1/auth/otp/request", json={"phone": "+919001000001"})
+    async with AsyncClient(
+        transport=ASGITransport(app=app_with_test_db), base_url="http://test"
+    ) as client:
+        r1 = await client.post(
+            "/api/v1/auth/otp/request", json={"phone": "+919001000001"}
+        )
         code = r1.json()["dev_code"]
         r2 = await client.post(
             "/api/v1/auth/otp/verify",
@@ -183,7 +235,9 @@ async def test_otp_verify_correct_code(app_with_test_db):
 @pytest.mark.anyio
 async def test_me_no_token(app_with_test_db):
     """5. GET /auth/me with no token → 401."""
-    async with AsyncClient(transport=ASGITransport(app=app_with_test_db), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app_with_test_db), base_url="http://test"
+    ) as client:
         r = await client.get("/api/v1/auth/me")
     assert r.status_code == 401
 
@@ -191,9 +245,13 @@ async def test_me_no_token(app_with_test_db):
 @pytest.mark.anyio
 async def test_me_valid_token(app_with_test_db):
     """6. GET /auth/me with valid DM token → 200, correct role + jurisdiction."""
-    async with AsyncClient(transport=ASGITransport(app=app_with_test_db), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app_with_test_db), base_url="http://test"
+    ) as client:
         token = await _get_token(client, "+919001000001")
-        r = await client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+        r = await client.get(
+            "/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"}
+        )
     assert r.status_code == 200
     data = r.json()
     assert data["role"] == "DM"
@@ -204,7 +262,9 @@ async def test_me_valid_token(app_with_test_db):
 @pytest.mark.anyio
 async def test_dashboard_tehsildar_scope(app_with_test_db):
     """7. Tehsildar → only villages within their tehsil (teh-001)."""
-    async with AsyncClient(transport=ASGITransport(app=app_with_test_db), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app_with_test_db), base_url="http://test"
+    ) as client:
         token = await _get_token(client, "+919001000002")
         r = await client.get(
             "/api/v1/dashboard/villages",
@@ -221,7 +281,9 @@ async def test_dashboard_tehsildar_scope(app_with_test_db):
 @pytest.mark.anyio
 async def test_dashboard_dm_scope(app_with_test_db):
     """8. DM → all villages in district (same 2 in our test DB)."""
-    async with AsyncClient(transport=ASGITransport(app=app_with_test_db), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app_with_test_db), base_url="http://test"
+    ) as client:
         token = await _get_token(client, "+919001000001")
         r = await client.get(
             "/api/v1/dashboard/villages",

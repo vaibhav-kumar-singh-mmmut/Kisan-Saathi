@@ -6,6 +6,7 @@ All modules: shared infrastructure for jurisdiction-scoped filtering (Phase 2+).
 
 Uses String PKs (UUID stored as text) for SQLite compatibility in dev.
 """
+
 import uuid
 from datetime import datetime, timezone
 
@@ -25,7 +26,9 @@ class Jurisdiction(Base):
 
     id = Column(String(36), primary_key=True, default=_new_id)
     name = Column(String(200), nullable=False)
-    jurisdiction_type = Column(String(20), nullable=False)   # district/tehsil/block/village/panchayat
+    jurisdiction_type = Column(
+        String(20), nullable=False
+    )  # district/tehsil/block/village/panchayat
     parent_id = Column(
         String(36),
         ForeignKey("jurisdictions.id", ondelete="SET NULL"),

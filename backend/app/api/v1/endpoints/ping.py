@@ -1,4 +1,5 @@
 """Simple ping endpoint — used for gateway verification."""
+
 from fastapi import APIRouter
 
 router = APIRouter()

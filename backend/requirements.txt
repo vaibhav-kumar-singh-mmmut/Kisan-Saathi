@@ -19,3 +19,5 @@ Pillow==11.3.0
 boto3==1.39.10
 pytest==8.4.1
 pytest-asyncio==1.0.0
+onnxruntime>=1.18.0
+numpy>=1.26.0

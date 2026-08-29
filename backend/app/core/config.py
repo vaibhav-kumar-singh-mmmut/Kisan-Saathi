@@ -1,6 +1,8 @@
 """Application configuration loaded from .env / environment variables."""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
+from pydantic import field_validator
+from typing import List, Union
 
 
 class Settings(BaseSettings):
@@ -24,8 +26,8 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # OTP
-    OTP_TTL_SECONDS: int = 300              # 5 minutes
-    DEV_RETURN_OTP: bool = True             # Echo OTP in response — set False in prod
+    OTP_TTL_SECONDS: int = 300  # 5 minutes
+    DEV_RETURN_OTP: bool = True  # Echo OTP in response — set False in prod
 
     # External APIs
     WEATHER_API_KEY: str = ""
@@ -35,7 +37,7 @@ class Settings(BaseSettings):
     AGRISTACK_UFSI_KEY: str = ""
 
     # CORS — comma-separated string from env, converted to list
-    ALLOWED_ORIGINS: List[str] = [
+    ALLOWED_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:5173",
         "http://localhost:5174",
@@ -45,6 +47,13 @@ class Settings(BaseSettings):
         "http://localhost:8000",
         "http://127.0.0.1:8000",
     ]
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        return v
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"

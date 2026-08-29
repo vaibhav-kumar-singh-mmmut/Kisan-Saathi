@@ -4,6 +4,7 @@ JWT utility — create and decode access tokens.
 Uses python-jose (already in requirements.txt).
 Settings sourced from app.core.config (JWT_SECRET, JWT_ALGORITHM, JWT_ACCESS_TOKEN_EXPIRE_MINUTES).
 """
+
 from datetime import datetime, timedelta, timezone
 from typing import Any
 

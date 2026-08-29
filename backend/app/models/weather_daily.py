@@ -2,6 +2,7 @@
 WeatherDaily model — daily weather records per village.
 M2 (Crop Risk Radar): checked against disease_lookup.weather_triggers.
 """
+
 import uuid
 from datetime import datetime, timezone
 

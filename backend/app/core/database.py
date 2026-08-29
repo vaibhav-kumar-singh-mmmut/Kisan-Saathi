@@ -1,4 +1,5 @@
 """SQLAlchemy engine + session factory."""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
 
@@ -26,6 +27,7 @@ SessionLocal = sessionmaker(
 
 class Base(DeclarativeBase):
     """Shared declarative base for all ORM models."""
+
     pass
 
 

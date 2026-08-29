@@ -2,6 +2,7 @@
 ZoneStatus model — per-village zone classification output.
 M2 (Crop Risk Radar) / M4 (Geo Disease Hotspot Maps).
 """
+
 import uuid
 from datetime import datetime, timezone
 

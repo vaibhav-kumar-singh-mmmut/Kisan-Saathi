@@ -2,6 +2,7 @@
 Official model — all 21 roles across Revenue, Development, Panchayat, Service wings.
 Used for: auth (Phase 2), expert queue (M5), subsidy approval (Phase 11).
 """
+
 import uuid
 from datetime import datetime, timezone
 
@@ -23,7 +24,7 @@ class Official(Base):
     name = Column(String(200), nullable=False)
     phone = Column(String(20), nullable=False, unique=True)
     role = Column(String(80), nullable=False)
-    wing = Column(String(20), nullable=False)       # revenue/development/panchayat/service
+    wing = Column(String(20), nullable=False)  # revenue/development/panchayat/service
     jurisdiction_type = Column(String(40), nullable=False)
     jurisdiction_id = Column(
         String(36),

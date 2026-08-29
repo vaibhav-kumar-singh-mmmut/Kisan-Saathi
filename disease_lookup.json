@@ -1,7 +1,14 @@
 {
   "_meta": {
     "description": "Seed data for the disease_lookup table. Each entry drives zone classification, predictive risk alerts, and spread-prediction logic.",
-    "spread_medium_types": ["wind", "water", "soil", "insect_vector", "cropping_calendar_bridge", "contaminated_material"],
+    "spread_medium_types": [
+      "wind",
+      "water",
+      "soil",
+      "insect_vector",
+      "cropping_calendar_bridge",
+      "contaminated_material"
+    ],
     "notes": "cropping_calendar_bridge: pest/pathogen persists between main seasons via off-season/volunteer crops acting as a 'green bridge' (e.g. rice tungro virus, TN/AP border). risk_factors are plot-level checkable inputs beyond weather that sharpen scoring.",
     "weather_risk_patterns": {
       "rust_type": "Cool temps (10-27C) + wind-dispersed. Near-calendar-predictable seasonal windows.",
@@ -23,12 +30,19 @@
     {
       "id": "wheat_yellow_rust",
       "name": "Yellow Rust",
-      "crops": ["Wheat"],
+      "crops": [
+        "Wheat"
+      ],
       "severity": "high",
-      "spread_medium": ["wind"],
+      "spread_medium": [
+        "wind"
+      ],
       "spread_radius_km": 50,
       "seasonal_window": "Dec-Mar (Rabi)",
-      "weather_triggers": { "temp_c_max": 15, "humidity_pct_min": 70 },
+      "weather_triggers": {
+        "temp_c_max": 15,
+        "humidity_pct_min": 70
+      },
       "regional_source": "Himalayan region (via Barberry host) migrating south on northerly winds into NW India plains",
       "risk_factors": [],
       "irreversible": false,
@@ -37,421 +51,981 @@
         "Avoid excess nitrogenous fertilizer",
         "Spray recommended fungicide (e.g. Propiconazole) at first sign",
         "Monitor fields weekly during Dec-Mar"
+      ],
+      "ipm_steps_hi": [
+        "जहाँ उपलब्ध हो वहाँ रोग प्रतिरोधी/सहनशील गेहूँ की किस्मों का उपयोग करें",
+        "अतिरिक्त नाइट्रोजन युक्त उर्वरक के उपयोग से बचें",
+        "पहला लक्षण दिखते ही अनुशंसित फफूंदनाशक (जैसे प्रोपिकोनाज़ोल) का छिड़काव करें",
+        "दिसंबर-मार्च के दौरान हर सप्ताह खेतों की निगरानी करें"
       ]
     },
     {
       "id": "wheat_brown_leaf_rust",
       "name": "Brown/Leaf Rust",
-      "crops": ["Wheat"],
+      "crops": [
+        "Wheat"
+      ],
       "severity": "medium",
-      "spread_medium": ["wind"],
+      "spread_medium": [
+        "wind"
+      ],
       "spread_radius_km": 40,
       "seasonal_window": "Feb (Punjab typical onset)",
-      "weather_triggers": { "temp_c_min": 16, "temp_c_max": 27 },
+      "weather_triggers": {
+        "temp_c_min": 16,
+        "temp_c_max": 27
+      },
       "regional_source": "Nilgiri hills (south) and Himalayan hills (north), both act as source regions",
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Fungicide spray at onset", "Resistant variety selection", "Field monitoring at heading stage"]
+      "ipm_steps": [
+        "Fungicide spray at onset",
+        "Resistant variety selection",
+        "Field monitoring at heading stage"
+      ],
+      "ipm_steps_hi": [
+        "लक्षण दिखते ही फफूंदनाशक का छिड़काव करें",
+        "रोग प्रतिरोधी किस्म का चयन करें",
+        "बालियाँ निकलने की अवस्था में खेत की निगरानी करें"
+      ]
     },
     {
       "id": "wheat_stem_black_rust",
       "name": "Black/Stem Rust",
-      "crops": ["Wheat"],
+      "crops": [
+        "Wheat"
+      ],
       "severity": "high",
-      "spread_medium": ["wind"],
+      "spread_medium": [
+        "wind"
+      ],
       "spread_radius_km": 60,
       "seasonal_window": "Late Feb-Mar",
-      "weather_triggers": { "temp_c_min": 16, "temp_c_max": 27 },
+      "weather_triggers": {
+        "temp_c_min": 16,
+        "temp_c_max": 27
+      },
       "regional_source": "Nilgiri hills (south), migrates north into Punjab",
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Early forecast-based fungicide application", "Resistant variety use"]
+      "ipm_steps": [
+        "Early forecast-based fungicide application",
+        "Resistant variety use"
+      ],
+      "ipm_steps_hi": [
+        "प्रारंभिक पूर्वानुमान के आधार पर फफूंदनाशक का प्रयोग करें",
+        "रोग प्रतिरोधी किस्म का उपयोग करें"
+      ]
     },
     {
       "id": "wheat_pests",
       "name": "Insect Pest Complex (aphids, termites, armyworm, brown wheat mite)",
-      "crops": ["Wheat"],
+      "crops": [
+        "Wheat"
+      ],
       "severity": "medium",
-      "spread_medium": ["insect_vector"],
-      "risk_factors": ["rice_wheat_monoculture_years"],
+      "spread_medium": [
+        "insect_vector"
+      ],
+      "risk_factors": [
+        "rice_wheat_monoculture_years"
+      ],
       "irreversible": false,
-      "ipm_steps": ["Pheromone/light traps", "Neem-based spray", "Avoid continuous rice-wheat monoculture"]
+      "ipm_steps": [
+        "Pheromone/light traps",
+        "Neem-based spray",
+        "Avoid continuous rice-wheat monoculture"
+      ],
+      "ipm_steps_hi": [
+        "फेरोमोन / प्रकाश जाल (लाइट ट्रैप) का उपयोग करें",
+        "नीम-आधारित कीटनाशक का छिड़काव करें",
+        "लगातार धान-गेहूँ की एक ही फसल चक्र से बचें"
+      ]
     },
     {
       "id": "rice_bakanae",
       "name": "Bakanae (Foot Rot)",
-      "crops": ["Rice (Basmati)"],
+      "crops": [
+        "Rice (Basmati)"
+      ],
       "severity": "high",
-      "spread_medium": ["contaminated_material"],
+      "spread_medium": [
+        "contaminated_material"
+      ],
       "regional_note": "Serious in basmati belts: Punjab, Haryana, eastern UP, Uttarakhand, Delhi",
-      "risk_factors": ["seed_source_certified"],
+      "risk_factors": [
+        "seed_source_certified"
+      ],
       "irreversible": false,
-      "ipm_steps": ["Use certified disease-free seed", "Seed treatment before sowing", "Rogue out infected seedlings in nursery"]
+      "ipm_steps": [
+        "Use certified disease-free seed",
+        "Seed treatment before sowing",
+        "Rogue out infected seedlings in nursery"
+      ],
+      "ipm_steps_hi": [
+        "प्रमाणित रोग-मुक्त बीजों का उपयोग करें",
+        "बुवाई से पहले बीज उपचार (सीड ट्रीटमेंट) करें",
+        "नर्सरी में संक्रमित पौधों को उखाड़कर नष्ट करें"
+      ]
     },
     {
       "id": "rice_false_smut",
       "name": "False Smut",
-      "crops": ["Rice"],
+      "crops": [
+        "Rice"
+      ],
       "severity": "medium",
-      "spread_medium": ["wind", "water"],
+      "spread_medium": [
+        "wind",
+        "water"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Balanced nitrogen use", "Fungicide spray at boot-leaf stage", "Field sanitation post-harvest"]
+      "ipm_steps": [
+        "Balanced nitrogen use",
+        "Fungicide spray at boot-leaf stage",
+        "Field sanitation post-harvest"
+      ],
+      "ipm_steps_hi": [
+        "नाइट्रोजन का संतुलित उपयोग करें",
+        "बूट-लीफ अवस्था में फफूंदनाशक का छिड़काव करें",
+        "कटाई के बाद खेत की साफ-सफाई रखें"
+      ]
     },
     {
       "id": "rice_blast",
       "name": "Rice Blast",
-      "crops": ["Rice"],
+      "crops": [
+        "Rice"
+      ],
       "severity": "high",
-      "spread_medium": ["wind", "water"],
-      "weather_triggers": { "humidity_pct_min": 85, "temp_c_min": 24, "temp_c_max": 28, "prolonged_leaf_wetness_hrs_min": 8 },
+      "spread_medium": [
+        "wind",
+        "water"
+      ],
+      "weather_triggers": {
+        "humidity_pct_min": 85,
+        "temp_c_min": 24,
+        "temp_c_max": 28,
+        "prolonged_leaf_wetness_hrs_min": 8
+      },
       "historical_note": "Contributed to 1942-43 Bengal famine; still widespread in WB, Odisha, AP, TN, Karnataka",
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Resistant variety use", "Balanced fertilization", "Fungicide seed treatment"]
+      "ipm_steps": [
+        "Resistant variety use",
+        "Balanced fertilization",
+        "Fungicide seed treatment"
+      ],
+      "ipm_steps_hi": [
+        "रोग प्रतिरोधी किस्म का उपयोग करें",
+        "संतुलित उर्वरक का प्रयोग करें",
+        "फफूंदनाशक से बीज उपचार करें"
+      ]
     },
     {
       "id": "rice_tungro",
       "name": "Tungro Virus",
-      "crops": ["Rice"],
+      "crops": [
+        "Rice"
+      ],
       "severity": "high",
-      "spread_medium": ["insect_vector", "cropping_calendar_bridge"],
+      "spread_medium": [
+        "insect_vector",
+        "cropping_calendar_bridge"
+      ],
       "regional_note": "Coromandel coast, TN/AP border; off-season 'green bridge' cropping lets vector persist between main seasons",
-      "risk_factors": ["off_season_planting_nearby"],
+      "risk_factors": [
+        "off_season_planting_nearby"
+      ],
       "irreversible": true,
-      "ipm_steps": ["Avoid off-season/summer rice near main-season fields", "Vector (leafhopper) control", "Resistant variety use"]
+      "ipm_steps": [
+        "Avoid off-season/summer rice near main-season fields",
+        "Vector (leafhopper) control",
+        "Resistant variety use"
+      ],
+      "ipm_steps_hi": [
+        "मुख्य मौसम के खेतों के पास बेमौसम/गर्मी के धान की खेती से बचें",
+        "वेक्टर (लीफहॉपर/फुदका) का नियंत्रण करें",
+        "रोग प्रतिरोधी किस्म का उपयोग करें"
+      ]
     },
     {
       "id": "sugarcane_red_rot",
       "name": "Red Rot",
-      "crops": ["Sugarcane"],
+      "crops": [
+        "Sugarcane"
+      ],
       "severity": "high",
-      "spread_medium": ["soil", "contaminated_material"],
+      "spread_medium": [
+        "soil",
+        "contaminated_material"
+      ],
       "regional_note": "Widespread across Indo-Gangetic plain, esp. western UP",
-      "risk_factors": ["drainage_quality_poor", "ratoon_crop", "planting_material_certified"],
+      "risk_factors": [
+        "drainage_quality_poor",
+        "ratoon_crop",
+        "planting_material_certified"
+      ],
       "irreversible": true,
       "ipm_steps": [
         "Use certified, disease-free planting material (setts)",
         "Improve field drainage",
         "Avoid excessive ratooning of infected fields",
         "Remove and destroy infected stools"
+      ],
+      "ipm_steps_hi": [
+        "प्रमाणित, रोग-मुक्त रोपण सामग्री (गन्ने के टुकड़े/सेट्स) का उपयोग करें",
+        "खेत में जल निकासी (ड्रेनेज) की व्यवस्था सुधारें",
+        "संक्रमित खेतों में बार-बार पेड़ी (रटून) की फसल लेने से बचें",
+        "संक्रमित पौधों/झुंडों को उखाड़कर नष्ट करें"
       ]
     },
     {
       "id": "cotton_whitefly",
       "name": "Whitefly Infestation",
-      "crops": ["Cotton"],
+      "crops": [
+        "Cotton"
+      ],
       "severity": "high",
-      "spread_medium": ["insect_vector", "wind"],
+      "spread_medium": [
+        "insect_vector",
+        "wind"
+      ],
       "regional_note": "Punjab, Haryana, Gujarat, MP, Rajasthan",
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Yellow sticky traps", "Neem-based spray", "Avoid excess nitrogen"]
+      "ipm_steps": [
+        "Yellow sticky traps",
+        "Neem-based spray",
+        "Avoid excess nitrogen"
+      ],
+      "ipm_steps_hi": [
+        "पीले चिपचिपे जाल (येलो स्टिकी ट्रैप) लगाएं",
+        "नीम-आधारित कीटनाशक का छिड़काव करें",
+        "अत्यधिक नाइट्रोजन के प्रयोग से बचें"
+      ]
     },
     {
       "id": "cotton_pink_bollworm",
       "name": "Pink Bollworm",
-      "crops": ["Cotton"],
+      "crops": [
+        "Cotton"
+      ],
       "severity": "high",
-      "spread_medium": ["insect_vector"],
+      "spread_medium": [
+        "insect_vector"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Pheromone traps", "Timely destruction of crop residue", "Recommended insecticide if threshold crossed"]
+      "ipm_steps": [
+        "Pheromone traps",
+        "Timely destruction of crop residue",
+        "Recommended insecticide if threshold crossed"
+      ],
+      "ipm_steps_hi": [
+        "Pheromone traps",
+        "फसल के अवशेषों को समय पर नष्ट करें",
+        "नुकसान सीमा पार करने पर अनुशंसित कीटनाशक का छिड़काव करें"
+      ]
     },
     {
       "id": "mustard_pests_diseases",
       "name": "Aphid / Alternaria Blight / White Rust",
-      "crops": ["Mustard"],
+      "crops": [
+        "Mustard"
+      ],
       "severity": "medium",
-      "spread_medium": ["insect_vector", "wind"],
+      "spread_medium": [
+        "insect_vector",
+        "wind"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Neem oil spray", "Recommended fungicide for white rust", "Timely sowing to avoid peak aphid window"]
+      "ipm_steps": [
+        "Neem oil spray",
+        "Recommended fungicide for white rust",
+        "Timely sowing to avoid peak aphid window"
+      ],
+      "ipm_steps_hi": [
+        "नीम के तेल का छिड़काव करें",
+        "सफेद रतुआ (व्हाइट रस्ट) के लिए अनुशंसित फफूंदनाशक का प्रयोग करें",
+        "एफिड्स के चरम प्रकोप से बचने के लिए समय पर बुवाई करें"
+      ]
     },
     {
       "id": "onion_purple_blotch",
       "name": "Purple Blotch",
-      "crops": ["Onion"],
+      "crops": [
+        "Onion"
+      ],
       "severity": "high",
-      "spread_medium": ["wind", "insect_vector"],
-      "weather_triggers": { "temp_c_min": 28, "temp_c_max": 30, "humidity_pct_min": 80 },
-      "compound_risk_with": ["onion_thrips"],
+      "spread_medium": [
+        "wind",
+        "insect_vector"
+      ],
+      "weather_triggers": {
+        "temp_c_min": 28,
+        "temp_c_max": 30,
+        "humidity_pct_min": 80
+      },
+      "compound_risk_with": [
+        "onion_thrips"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Use healthy/certified seed", "Trichoderma harzianum foliar spray", "Manage thrips to reduce leaf injury entry points"]
+      "ipm_steps": [
+        "Use healthy/certified seed",
+        "Trichoderma harzianum foliar spray",
+        "Manage thrips to reduce leaf injury entry points"
+      ],
+      "ipm_steps_hi": [
+        "स्वस्थ और प्रमाणित बीज का उपयोग करें",
+        "ट्राइकोडर्मा हरज़ियानम का पर्णीय छिड़काव करें",
+        "पत्तियों को चोट लगने और संक्रमण से बचाने के लिए थ्रिप्स का प्रबंधन करें"
+      ]
     },
     {
       "id": "onion_stemphylium_blight",
       "name": "Stemphylium Leaf Blight",
-      "crops": ["Onion"],
+      "crops": [
+        "Onion"
+      ],
       "severity": "high",
-      "spread_medium": ["wind", "water"],
+      "spread_medium": [
+        "wind",
+        "water"
+      ],
       "regional_note": "Documented in Tarai/Bhabar regions of Uttarakhand",
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Neembicidine foliar spray", "Crop rotation (3+ years out of onion)", "Field sanitation - bury plant debris"]
+      "ipm_steps": [
+        "Neembicidine foliar spray",
+        "Crop rotation (3+ years out of onion)",
+        "Field sanitation - bury plant debris"
+      ],
+      "ipm_steps_hi": [
+        "नीम्बिसाइडिन का छिड़काव करें",
+        "फसल चक्र अपनाएं (3+ साल तक प्याज न बोएं)",
+        "खेत की स्वच्छता - पौधों के अवशेषों को मिट्टी में दबाएं"
+      ]
     },
     {
       "id": "onion_thrips",
       "name": "Thrips",
-      "crops": ["Onion"],
+      "crops": [
+        "Onion"
+      ],
       "severity": "medium",
-      "spread_medium": ["insect_vector"],
+      "spread_medium": [
+        "insect_vector"
+      ],
       "seasonal_window": "Mar-Apr peak in North India",
-      "compound_risk_with": ["onion_purple_blotch"],
+      "compound_risk_with": [
+        "onion_purple_blotch"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Neem-based IGR bio-pesticide", "Blue sticky traps", "Early detection critical - compounds purple blotch severity"]
+      "ipm_steps": [
+        "Neem-based IGR bio-pesticide",
+        "Blue sticky traps",
+        "Early detection critical - compounds purple blotch severity"
+      ],
+      "ipm_steps_hi": [
+        "नीम-आधारित आईजीआर बायो-पेस्टीसाइड का उपयोग करें",
+        "नीले चिपचिपे जाल (ब्लू स्टिकी ट्रैप) लगाएं",
+        "प्रारंभिक पहचान महत्वपूर्ण है - यह पर्पल ब्लॉच की गंभीरता को बढ़ाता है"
+      ]
     },
     {
       "id": "onion_fusarium_basal_rot",
       "name": "Fusarium Basal Rot",
-      "crops": ["Onion", "Garlic"],
+      "crops": [
+        "Onion",
+        "Garlic"
+      ],
       "severity": "high",
-      "spread_medium": ["soil"],
+      "spread_medium": [
+        "soil"
+      ],
       "risk_factors": [],
       "irreversible": true,
-      "ipm_steps": ["Field sanitation", "Avoid waterlogging", "Use resistant varieties where available"]
+      "ipm_steps": [
+        "Field sanitation",
+        "Avoid waterlogging",
+        "Use resistant varieties where available"
+      ],
+      "ipm_steps_hi": [
+        "खेत की स्वच्छता बनाए रखें",
+        "जलभराव से बचें",
+        "जहाँ उपलब्ध हो, रोग प्रतिरोधी किस्मों का उपयोग करें"
+      ]
     },
     {
       "id": "solanaceous_early_blight",
       "name": "Early Blight",
-      "crops": ["Tomato", "Potato", "Brinjal", "Chilli"],
+      "crops": [
+        "Tomato",
+        "Potato",
+        "Brinjal",
+        "Chilli"
+      ],
       "severity": "medium",
-      "spread_medium": ["soil", "water"],
-      "weather_triggers": { "temp_c_min": 24, "temp_c_max": 29, "humidity_pct_min": 70 },
-      "risk_factors": ["same_family_rotation"],
+      "spread_medium": [
+        "soil",
+        "water"
+      ],
+      "weather_triggers": {
+        "temp_c_min": 24,
+        "temp_c_max": 29,
+        "humidity_pct_min": 70
+      },
+      "risk_factors": [
+        "same_family_rotation"
+      ],
       "irreversible": false,
-      "ipm_steps": ["Crop rotation out of Solanaceae for 3 years", "Morning irrigation so leaves dry fast", "Fungicide at first sign"]
+      "ipm_steps": [
+        "Crop rotation out of Solanaceae for 3 years",
+        "Morning irrigation so leaves dry fast",
+        "Fungicide at first sign"
+      ],
+      "ipm_steps_hi": [
+        "सोलानेसी कुल की फसलों से 3 साल तक फसल चक्र अपनाएं",
+        "सुबह के समय सिंचाई करें ताकि पत्तियां जल्दी सूख जाएं",
+        "पहला लक्षण दिखते ही फफूंदनाशक का छिड़काव करें"
+      ]
     },
     {
       "id": "solanaceous_late_blight",
       "name": "Late Blight",
-      "crops": ["Tomato", "Potato", "Brinjal"],
+      "crops": [
+        "Tomato",
+        "Potato",
+        "Brinjal"
+      ],
       "severity": "high",
-      "spread_medium": ["wind", "water"],
-      "weather_triggers": { "temp_c_min": 10, "temp_c_max": 21, "humidity_pct_min": 90 },
+      "spread_medium": [
+        "wind",
+        "water"
+      ],
+      "weather_triggers": {
+        "temp_c_min": 10,
+        "temp_c_max": 21,
+        "humidity_pct_min": 90
+      },
       "risk_factors": [],
       "irreversible": true,
-      "ipm_steps": ["Destroy infected plants immediately", "Avoid overhead irrigation", "Preventive fungicide before cool-wet spell"]
+      "ipm_steps": [
+        "Destroy infected plants immediately",
+        "Avoid overhead irrigation",
+        "Preventive fungicide before cool-wet spell"
+      ],
+      "ipm_steps_hi": [
+        "संक्रमित पौधों को तुरंत नष्ट करें",
+        "ओवरहेड (ऊपर से) सिंचाई से बचें",
+        "ठंडे और नम मौसम से पहले निवारक फफूंदनाशक का छिड़काव करें"
+      ]
     },
     {
       "id": "solanaceous_bacterial_wilt",
       "name": "Bacterial Wilt",
-      "crops": ["Tomato", "Chilli"],
+      "crops": [
+        "Tomato",
+        "Chilli"
+      ],
       "severity": "high",
-      "spread_medium": ["soil"],
-      "weather_triggers": { "temp_c_min": 28, "recent_heavy_rain_or_irrigation": true },
-      "risk_factors": ["recent_insect_or_physical_wounding"],
+      "spread_medium": [
+        "soil"
+      ],
+      "weather_triggers": {
+        "temp_c_min": 28,
+        "recent_heavy_rain_or_irrigation": true
+      },
+      "risk_factors": [
+        "recent_insect_or_physical_wounding"
+      ],
       "irreversible": true,
-      "ipm_steps": ["Remove and destroy infected plants immediately", "No effective chemical control - focus on prevention", "Crop rotation with non-host crops"]
+      "ipm_steps": [
+        "Remove and destroy infected plants immediately",
+        "No effective chemical control - focus on prevention",
+        "Crop rotation with non-host crops"
+      ],
+      "ipm_steps_hi": [
+        "संक्रमित पौधों को तुरंत उखाड़कर नष्ट करें",
+        "कोई प्रभावी रासायनिक नियंत्रण नहीं है - रोकथाम पर ध्यान दें",
+        "गैर-मेजबान (नॉन-होस्ट) फसलों के साथ फसल चक्र अपनाएं"
+      ]
     },
     {
       "id": "potato_pink_rot",
       "name": "Pink Rot",
-      "crops": ["Potato"],
+      "crops": [
+        "Potato"
+      ],
       "severity": "medium",
-      "spread_medium": ["soil", "water"],
+      "spread_medium": [
+        "soil",
+        "water"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Improve field drainage", "Avoid waterlogged storage conditions"]
+      "ipm_steps": [
+        "Improve field drainage",
+        "Avoid waterlogged storage conditions"
+      ],
+      "ipm_steps_hi": [
+        "खेत में जल निकासी (ड्रेनेज) की व्यवस्था सुधारें",
+        "भंडारण में जलभराव की स्थिति से बचें"
+      ]
     },
     {
       "id": "potato_powdery_scab",
       "name": "Powdery Scab",
-      "crops": ["Potato"],
+      "crops": [
+        "Potato"
+      ],
       "severity": "low",
-      "spread_medium": ["soil"],
+      "spread_medium": [
+        "soil"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Use certified tuber seed", "Avoid waterlogged fields"]
+      "ipm_steps": [
+        "Use certified tuber seed",
+        "Avoid waterlogged fields"
+      ],
+      "ipm_steps_hi": [
+        "प्रमाणित कंद (ट्यूबर) बीज का उपयोग करें",
+        "जलभराव वाले खेतों से बचें"
+      ]
     },
     {
       "id": "brinjal_fruit_shoot_borer",
       "name": "Fruit & Shoot Borer",
-      "crops": ["Brinjal"],
+      "crops": [
+        "Brinjal"
+      ],
       "severity": "high",
-      "spread_medium": ["insect_vector"],
+      "spread_medium": [
+        "insect_vector"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Pheromone traps", "Remove/destroy infested shoots and fruits", "Recommended insecticide if threshold crossed"]
+      "ipm_steps": [
+        "Pheromone traps",
+        "Remove/destroy infested shoots and fruits",
+        "Recommended insecticide if threshold crossed"
+      ],
+      "ipm_steps_hi": [
+        "Pheromone traps",
+        "संक्रमित टहनियों और फलों को हटाकर नष्ट करें",
+        "नुकसान सीमा पार करने पर अनुशंसित कीटनाशक का छिड़काव करें"
+      ]
     },
     {
       "id": "nursery_damping_off",
       "name": "Damping-off",
-      "crops": ["Tomato", "Brinjal", "Chilli", "Cauliflower", "Cabbage"],
+      "crops": [
+        "Tomato",
+        "Brinjal",
+        "Chilli",
+        "Cauliflower",
+        "Cabbage"
+      ],
       "severity": "medium",
-      "spread_medium": ["soil", "water"],
+      "spread_medium": [
+        "soil",
+        "water"
+      ],
       "growth_stage": "nursery",
-      "risk_factors": ["overwatering", "waterlogged_nursery"],
+      "risk_factors": [
+        "overwatering",
+        "waterlogged_nursery"
+      ],
       "irreversible": false,
-      "ipm_steps": ["Trichoderma viride soil treatment before sowing", "Avoid overwatering nursery beds", "Water from below, not overhead"]
+      "ipm_steps": [
+        "Trichoderma viride soil treatment before sowing",
+        "Avoid overwatering nursery beds",
+        "Water from below, not overhead"
+      ],
+      "ipm_steps_hi": [
+        "बुवाई से पहले ट्राइकोडर्मा विरिडी से भूमि उपचार करें",
+        "नर्सरी में अत्यधिक पानी देने से बचें",
+        "ऊपर से पानी देने के बजाय जड़ों के पास से सिंचाई करें"
+      ]
     },
     {
       "id": "anthracnose_multi",
       "name": "Anthracnose",
-      "crops": ["Mango", "Guava", "Grapes", "Papaya", "Citrus", "Pomegranate"],
+      "crops": [
+        "Mango",
+        "Guava",
+        "Grapes",
+        "Papaya",
+        "Citrus",
+        "Pomegranate"
+      ],
       "severity": "high",
-      "spread_medium": ["wind", "water"],
-      "weather_triggers": { "humidity_pct_min": 80 },
+      "spread_medium": [
+        "wind",
+        "water"
+      ],
+      "weather_triggers": {
+        "humidity_pct_min": 80
+      },
       "regional_note": "Guava anthracnose esp. in UP (Saharanpur), Punjab, Karnataka",
       "note": "Shared pathogen family across multiple orchard fruits - a confirmed outbreak in one fruit type is a risk signal for adjacent orchards of other listed crops",
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Preharvest fungicide sprays (carbendazim/thiophanate-methyl)", "Postharvest dip treatment", "Remove infected plant material"]
+      "ipm_steps": [
+        "Preharvest fungicide sprays (carbendazim/thiophanate-methyl)",
+        "Postharvest dip treatment",
+        "Remove infected plant material"
+      ],
+      "ipm_steps_hi": [
+        "कटाई से पहले फफूंदनाशक का छिड़काव करें (कार्बेंडाजिम/थियोफेनेट-मिथाइल)",
+        "कटाई के बाद फलों का डिप ट्रीटमेंट (डुबाकर उपचार) करें",
+        "संक्रमित पौधे की सामग्री को हटा दें"
+      ]
     },
     {
       "id": "mango_powdery_mildew",
       "name": "Powdery Mildew",
-      "crops": ["Mango"],
+      "crops": [
+        "Mango"
+      ],
       "severity": "high",
-      "spread_medium": ["wind"],
+      "spread_medium": [
+        "wind"
+      ],
       "growth_stage": "flowering",
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Sulphur spray at flowering", "Fungicide application timed to panicle emergence"]
+      "ipm_steps": [
+        "Sulphur spray at flowering",
+        "Fungicide application timed to panicle emergence"
+      ],
+      "ipm_steps_hi": [
+        "फूल आने पर सल्फर का छिड़काव करें",
+        "मंजर (पैनिकल) निकलने के समय फफूंदनाशक का छिड़काव करें"
+      ]
     },
     {
       "id": "mango_bacterial_canker",
       "name": "Bacterial Canker",
-      "crops": ["Mango"],
+      "crops": [
+        "Mango"
+      ],
       "severity": "medium",
-      "spread_medium": ["water", "wind"],
+      "spread_medium": [
+        "water",
+        "wind"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Copper-based spray", "Prune and destroy infected branches"]
+      "ipm_steps": [
+        "Copper-based spray",
+        "Prune and destroy infected branches"
+      ],
+      "ipm_steps_hi": [
+        "कॉपर-आधारित फफूंदनाशक का छिड़काव करें",
+        "संक्रमित शाखाओं की छंटाई करें और नष्ट कर दें"
+      ]
     },
     {
       "id": "litchi_blight",
       "name": "Leaf, Panicle & Fruit Blight (Alternaria alternata)",
-      "crops": ["Litchi"],
+      "crops": [
+        "Litchi"
+      ],
       "severity": "medium",
-      "spread_medium": ["wind"],
+      "spread_medium": [
+        "wind"
+      ],
       "regional_note": "Bihar, eastern UP, Uttarakhand, West Bengal",
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Fungicide spray at panicle emergence", "Post-harvest handling care to limit fruit decay"]
+      "ipm_steps": [
+        "Fungicide spray at panicle emergence",
+        "Post-harvest handling care to limit fruit decay"
+      ],
+      "ipm_steps_hi": [
+        "Fungicide spray at panicle emergence",
+        "फलों को खराब होने से बचाने के लिए कटाई के बाद सही देखभाल करें"
+      ]
     },
     {
       "id": "litchi_sudden_death",
       "name": "Litchi Sudden Death",
-      "crops": ["Litchi"],
+      "crops": [
+        "Litchi"
+      ],
       "severity": "high",
-      "spread_medium": ["soil"],
+      "spread_medium": [
+        "soil"
+      ],
       "growth_stage": "young_tree_under_5yr",
       "risk_factors": [],
       "irreversible": true,
-      "ipm_steps": ["Remove and destroy affected young trees promptly", "Avoid waterlogging at root crown", "Report immediately - fast-acting (4-5 day progression)"]
+      "ipm_steps": [
+        "Remove and destroy affected young trees promptly",
+        "Avoid waterlogging at root crown",
+        "Report immediately - fast-acting (4-5 day progression)"
+      ],
+      "ipm_steps_hi": [
+        "प्रभावित छोटे पेड़ों को तुरंत हटाकर नष्ट करें",
+        "जड़ के पास (क्राउन) जलभराव से बचें",
+        "तुरंत रिपोर्ट करें - यह तेजी से (4-5 दिन में) फैलता है"
+      ]
     },
     {
       "id": "litchi_fruit_shoot_borer",
       "name": "Fruit & Shoot Borer Complex",
-      "crops": ["Litchi"],
+      "crops": [
+        "Litchi"
+      ],
       "severity": "high",
-      "spread_medium": ["insect_vector"],
+      "spread_medium": [
+        "insect_vector"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Pheromone/light traps", "Timely harvest to reduce exposure window"]
+      "ipm_steps": [
+        "Pheromone/light traps",
+        "Timely harvest to reduce exposure window"
+      ],
+      "ipm_steps_hi": [
+        "फेरोमोन / प्रकाश जाल (लाइट ट्रैप) का उपयोग करें",
+        "संपर्क समय को कम करने के लिए समय पर कटाई करें"
+      ]
     },
     {
       "id": "pomegranate_bacterial_blight",
       "name": "Bacterial Blight",
-      "crops": ["Pomegranate"],
+      "crops": [
+        "Pomegranate"
+      ],
       "severity": "high",
-      "spread_medium": ["water"],
+      "spread_medium": [
+        "water"
+      ],
       "growth_stage": "fruiting",
-      "weather_triggers": { "recent_heavy_rain_or_irrigation": true },
+      "weather_triggers": {
+        "recent_heavy_rain_or_irrigation": true
+      },
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Use disease-free planting material", "Avoid overhead irrigation", "Prune infected branches Dec-Feb", "Disinfect pruning tools"]
+      "ipm_steps": [
+        "Use disease-free planting material",
+        "Avoid overhead irrigation",
+        "Prune infected branches Dec-Feb",
+        "Disinfect pruning tools"
+      ],
+      "ipm_steps_hi": [
+        "रोग-मुक्त रोपण सामग्री का उपयोग करें",
+        "ओवरहेड (ऊपर से) सिंचाई से बचें",
+        "दिसंबर से फरवरी के बीच संक्रमित शाखाओं की छंटाई करें",
+        "छंटाई वाले उपकरणों (टूल्स) को कीटाणुरहित करें"
+      ]
     },
     {
       "id": "pomegranate_nematode_wilt",
       "name": "Wilt (Nematode-linked)",
-      "crops": ["Pomegranate"],
+      "crops": [
+        "Pomegranate"
+      ],
       "severity": "medium",
-      "spread_medium": ["soil"],
+      "spread_medium": [
+        "soil"
+      ],
       "regional_note": "Documented in Himachal Pradesh orchards",
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Soil nematode testing", "Nematicide drenching if threshold crossed", "Proper drainage and weed management"]
+      "ipm_steps": [
+        "Soil nematode testing",
+        "Nematicide drenching if threshold crossed",
+        "Proper drainage and weed management"
+      ],
+      "ipm_steps_hi": [
+        "मिट्टी में नेमाटोड (सूत्रकृमि) का परीक्षण करें",
+        "नुकसान सीमा पार करने पर नेमाटीसाइड (सूत्रकृमिनाशक) की ड्रेन्चिंग करें",
+        "उचित जल निकासी और खरपतवार प्रबंधन करें"
+      ]
     },
     {
       "id": "chickpea_wilt",
       "name": "Wilt",
-      "crops": ["Chickpea"],
+      "crops": [
+        "Chickpea"
+      ],
       "severity": "high",
-      "spread_medium": ["soil", "water"],
+      "spread_medium": [
+        "soil",
+        "water"
+      ],
       "regional_note": "MP, Rajasthan, UP, Haryana, Maharashtra, Punjab",
-      "risk_factors": ["same_family_rotation"],
+      "risk_factors": [
+        "same_family_rotation"
+      ],
       "irreversible": true,
-      "ipm_steps": ["Crop rotation out of pulses", "Resistant variety use", "Seed treatment before sowing"]
+      "ipm_steps": [
+        "Crop rotation out of pulses",
+        "Resistant variety use",
+        "Seed treatment before sowing"
+      ],
+      "ipm_steps_hi": [
+        "दलहनी फसलों से अलग फसल चक्र अपनाएं",
+        "रोग प्रतिरोधी किस्म का उपयोग करें",
+        "बुवाई से पहले बीज उपचार (सीड ट्रीटमेंट) करें"
+      ]
     },
     {
       "id": "chickpea_ascochyta_blight",
       "name": "Ascochyta Blight",
-      "crops": ["Chickpea"],
+      "crops": [
+        "Chickpea"
+      ],
       "severity": "medium",
-      "spread_medium": ["contaminated_material", "wind"],
+      "spread_medium": [
+        "contaminated_material",
+        "wind"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Field/crop sanitation", "Fungicide spray at first sign"]
+      "ipm_steps": [
+        "Field/crop sanitation",
+        "Fungicide spray at first sign"
+      ],
+      "ipm_steps_hi": [
+        "खेत/फसल की स्वच्छता सुनिश्चित करें",
+        "Fungicide spray at first sign"
+      ]
     },
     {
       "id": "pulses_rust",
       "name": "Rust",
-      "crops": ["Pea", "Lentil", "Chickpea", "Moong"],
+      "crops": [
+        "Pea",
+        "Lentil",
+        "Chickpea",
+        "Moong"
+      ],
       "severity": "medium",
-      "spread_medium": ["wind"],
+      "spread_medium": [
+        "wind"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Fungicide spray combinations (metalaxyl/mancozeb type)", "Resistant variety selection"]
+      "ipm_steps": [
+        "Fungicide spray combinations (metalaxyl/mancozeb type)",
+        "Resistant variety selection"
+      ],
+      "ipm_steps_hi": [
+        "फफूंदनाशक मिश्रण (मेटालेक्सिल/मैंकोजेब प्रकार) का छिड़काव करें",
+        "रोग प्रतिरोधी किस्म का चयन करें"
+      ]
     },
     {
       "id": "pulses_powdery_mildew",
       "name": "Powdery Mildew",
-      "crops": ["Pea", "Moong", "Black Gram"],
+      "crops": [
+        "Pea",
+        "Moong",
+        "Black Gram"
+      ],
       "severity": "medium",
-      "spread_medium": ["wind"],
-      "weather_triggers": { "humidity_pct_min": 60, "dry_daytime_humid_night": true },
+      "spread_medium": [
+        "wind"
+      ],
+      "weather_triggers": {
+        "humidity_pct_min": 60,
+        "dry_daytime_humid_night": true
+      },
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Sulphur-based spray", "Avoid dense sowing for better airflow"]
+      "ipm_steps": [
+        "Sulphur-based spray",
+        "Avoid dense sowing for better airflow"
+      ],
+      "ipm_steps_hi": [
+        "सल्फर-आधारित छिड़काव करें",
+        "हवा के बेहतर प्रवाह के लिए सघन बुवाई (घनी बुवाई) से बचें"
+      ]
     },
     {
       "id": "lentil_collar_rot",
       "name": "Collar Rot",
-      "crops": ["Lentil"],
+      "crops": [
+        "Lentil"
+      ],
       "severity": "medium",
-      "spread_medium": ["soil"],
+      "spread_medium": [
+        "soil"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Seed treatment", "Avoid deep sowing in infected fields"]
+      "ipm_steps": [
+        "Seed treatment",
+        "Avoid deep sowing in infected fields"
+      ],
+      "ipm_steps_hi": [
+        "Seed treatment",
+        "संक्रमित खेतों में गहरी बुवाई से बचें"
+      ]
     },
     {
       "id": "pigeonpea_wilt",
       "name": "Vascular Wilt",
-      "crops": ["Pigeon Pea (Arhar)"],
+      "crops": [
+        "Pigeon Pea (Arhar)"
+      ],
       "severity": "high",
-      "spread_medium": ["soil"],
-      "risk_factors": ["same_family_rotation"],
+      "spread_medium": [
+        "soil"
+      ],
+      "risk_factors": [
+        "same_family_rotation"
+      ],
       "irreversible": true,
-      "ipm_steps": ["Resistant variety use", "Crop rotation", "Avoid waterlogged fields"]
+      "ipm_steps": [
+        "Resistant variety use",
+        "Crop rotation",
+        "Avoid waterlogged fields"
+      ],
+      "ipm_steps_hi": [
+        "रोग प्रतिरोधी किस्म का उपयोग करें",
+        "फसल चक्र अपनाएं",
+        "जलभराव वाले खेतों से बचें"
+      ]
     },
     {
       "id": "strawberry_powdery_mildew",
       "name": "Powdery Mildew",
-      "crops": ["Strawberry"],
+      "crops": [
+        "Strawberry"
+      ],
       "severity": "medium",
-      "spread_medium": ["wind"],
+      "spread_medium": [
+        "wind"
+      ],
       "risk_factors": [],
       "irreversible": false,
-      "ipm_steps": ["Sulphur spray", "Adequate plant spacing for airflow"]
+      "ipm_steps": [
+        "Sulphur spray",
+        "Adequate plant spacing for airflow"
+      ],
+      "ipm_steps_hi": [
+        "सल्फर का छिड़काव करें",
+        "हवा के प्रवाह के लिए पौधों के बीच पर्याप्त दूरी रखें"
+      ]
     }
   ],
   "compound_risk_rules": [
     {
-      "trigger_pair": ["onion_thrips", "onion_purple_blotch"],
+      "trigger_pair": [
+        "onion_thrips",
+        "onion_purple_blotch"
+      ],
       "effect": "thrips feeding injury significantly raises purple blotch infection incidence and severity - boost purple blotch risk score when thrips sighted"
     }
   ],

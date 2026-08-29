@@ -1,10 +1,12 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+
 
 class ExpertReviewRequest(BaseModel):
     corrected_disease_id: Optional[str] = None
     notes: Optional[str] = None
+
 
 class ExpertQueueItem(BaseModel):
     id: str
@@ -14,5 +16,4 @@ class ExpertQueueItem(BaseModel):
     status: str
     image_url: Optional[str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

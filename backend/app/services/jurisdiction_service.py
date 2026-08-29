@@ -12,46 +12,66 @@ get_village_ids_in_scope(db, jurisdiction_id, jurisdiction_type) → list[str]
 Uses a recursive SQL CTE to walk the jurisdictions self-referencing tree.
 This keeps the logic in one place — no per-role branching in the endpoint.
 """
+
 from typing import Optional
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-
 # Roles that map to district scope regardless of their jurisdiction_id
 _DISTRICT_SCOPE_ROLES = {
-    "DM", "District Magistrate",
-    "Adl. Commissioner", "Adl. DM (F/R)", "Adl. DM (E)", "Adl. DM (City)",
+    "DM",
+    "District Magistrate",
+    "Adl. Commissioner",
+    "Adl. DM (F/R)",
+    "Adl. DM (E)",
+    "Adl. DM (City)",
     "Chief Revenue Officer",
-    "CDO", "Chief Development Officer",
-    "DDO", "District Development Officer",
+    "CDO",
+    "Chief Development Officer",
+    "DDO",
+    "District Development Officer",
     "KVK Expert",  # assigned to district queue
 }
 
 # Roles that map to block scope
 _BLOCK_SCOPE_ROLES = {
-    "BDO", "Block Development Officer",
-    "Agriculture Officer", "Agriculture/Horticulture Officer",
+    "BDO",
+    "Block Development Officer",
+    "Agriculture Officer",
+    "Agriculture/Horticulture Officer",
     "Horticulture Officer",
-    "DC (MGNREGA)", "DC (NRLM)", "Project Director (DRDA)", "PD (DRDA)",
+    "DC (MGNREGA)",
+    "DC (NRLM)",
+    "Project Director (DRDA)",
+    "PD (DRDA)",
 }
 
 # Roles that map to tehsil scope
 _TEHSIL_SCOPE_ROLES = {
-    "Tehsildar", "Naib Tehsildar",
-    "SDM", "Sub Divisional Magistrate",
+    "Tehsildar",
+    "Naib Tehsildar",
+    "SDM",
+    "Sub Divisional Magistrate",
     "Kanungo",
 }
 
 # Roles that map to their own village/block (stored jurisdiction_id)
 _VILLAGE_SCOPE_ROLES = {
-    "Farmer", "Pradhan",
-    "Lekhpal/Patwari", "Lekhpal", "Patwari",
+    "Farmer",
+    "Pradhan",
+    "Lekhpal/Patwari",
+    "Lekhpal",
+    "Patwari",
 }
 
 # Service roles — scoped to their assigned jurisdiction_id (could be block or village)
 _SERVICE_SCOPE_ROLES = {
-    "RPTO Drone Pilot", "Drone Pilot", "Drone Assistant",
-    "CHC Manager", "FPO Representative", "FPO Rep",
+    "RPTO Drone Pilot",
+    "Drone Pilot",
+    "Drone Assistant",
+    "CHC Manager",
+    "FPO Representative",
+    "FPO Rep",
 }
 
 
@@ -117,7 +137,9 @@ def get_village_ids_in_scope(
     return [row[0] for row in rows]
 
 
-def _find_ancestor_at_level(db: Session, start_id: str, target_type: str) -> Optional[str]:
+def _find_ancestor_at_level(
+    db: Session, start_id: str, target_type: str
+) -> Optional[str]:
     """
     Walk up the jurisdictions tree from start_id until we reach a node
     with jurisdiction_type == target_type. Returns that node's id, or None.
@@ -132,5 +154,7 @@ def _find_ancestor_at_level(db: Session, start_id: str, target_type: str) -> Opt
         )
         SELECT id FROM ancestors WHERE jurisdiction_type = :target_type LIMIT 1
     """)
-    row = db.execute(walk_sql, {"start_id": start_id, "target_type": target_type}).fetchone()
+    row = db.execute(
+        walk_sql, {"start_id": start_id, "target_type": target_type}
+    ).fetchone()
     return row[0] if row else None

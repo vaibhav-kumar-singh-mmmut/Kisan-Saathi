@@ -7,6 +7,7 @@ decodes it, and returns the payload dict as a typed object.
 Used by all protected routes:
   current_user: Annotated[dict, Depends(get_current_user)]
 """
+
 from typing import Annotated, Any
 
 from fastapi import Depends
@@ -19,7 +20,9 @@ from app.utils.jwt_utils import decode_access_token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/otp/verify")
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> dict[str, Any]:
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+) -> dict[str, Any]:
     """
     FastAPI dependency — returns the decoded JWT payload.
     Raises HTTP 401 if token is missing, expired, or invalid.
