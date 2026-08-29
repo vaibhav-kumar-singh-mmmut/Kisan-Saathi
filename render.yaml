@@ -10,7 +10,9 @@ services:
       - key: APP_ENV
         value: production
       - key: DB_URL
-        sync: false # You will paste your Supabase Transaction Pooler connection string in the Render Dashboard
+        fromDatabase:
+          name: kisan-saathi-db
+          property: connectionString
       - key: ALLOWED_ORIGINS
         value: "https://kisan-saathi-frontend.onrender.com,http://localhost:5173"
 
@@ -27,3 +29,9 @@ services:
           type: web
           name: kisan-saathi-api
           property: url
+
+databases:
+  # 3. PostgreSQL Database
+  - name: kisan-saathi-db
+    plan: free
+    region: singapore # Standard region, will default if unavailable

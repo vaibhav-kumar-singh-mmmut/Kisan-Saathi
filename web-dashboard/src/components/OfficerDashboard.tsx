@@ -50,6 +50,19 @@ interface WeatherDetail {
   alerts: string[];
 }
 
+interface DroneBooking {
+  id: string;
+  farmer_id: string;
+  jurisdiction_id: string;
+  chc_name: string;
+  chc_distance_km: number;
+  crop_name: string;
+  acreage_ha: number;
+  status: string;
+  scheduled_for: string;
+  booked_at: string;
+}
+
 function MapFlyTo({ center }: { center: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
@@ -70,6 +83,7 @@ export default function OfficerDashboard() {
   const [subsidyFlags, setSubsidyFlags] = useState<any[]>([]);
   const [cropCatalogue, setCropCatalogue] = useState<any[]>([]);
   const [cropDiscrepancies, setCropDiscrepancies] = useState<any[]>([]);
+  const [droneBookings, setDroneBookings] = useState<DroneBooking[]>([]);
   const [subsidyLoading, setSubsidyLoading] = useState(false);
   const [agriStackLoading, setAgriStackLoading] = useState(false);
   
@@ -158,6 +172,15 @@ export default function OfficerDashboard() {
       if (discRes.ok) {
         const discData = await discRes.json();
         setCropDiscrepancies(discData || []);
+      }
+
+      // 7. Fetch Drone Bookings
+      const droneRes = await fetch(`${apiBase}/api/v1/drone/bookings`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (droneRes.ok) {
+        const droneData = await droneRes.json();
+        setDroneBookings(droneData || []);
       }
     } catch (err: any) {
       console.error('Officer Dashboard load error:', err);
@@ -443,7 +466,7 @@ export default function OfficerDashboard() {
             { id: 'map', label: '🗺️ Geo Hotspot Radar (Phase 9/10)', count: features.length },
             { id: 'villages', label: '📋 Village Surveillance Matrix', count: villages.length },
             { id: 'expert', label: '🔬 Expert Validation Queue (M5)', count: expertQueue.length },
-            { id: 'drone', label: '🚁 Drone Spray Dispatch', count: 3 },
+            { id: 'drone', label: '🚁 Drone Spray Dispatch', count: droneBookings.length },
             { id: 'subsidy', label: '🏛️ PMFBY Subsidy Flags', count: subsidyFlags.length },
             { id: 'agristack', label: '🌾 AgriStack & WDRA Storage (Phase 12)', count: cropCatalogue.length },
           ].map((tab) => (
@@ -1021,37 +1044,35 @@ export default function OfficerDashboard() {
             </h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
-              {[
-                { id: 'DRN-2026-0819', village: 'Rampur Khurd', crop: 'Wheat (गेहूं)', acres: 3, cost: '₹1,200', status: 'Approved', pilot: 'Pilot Unit #4 (Sitapur Hub)' },
-                { id: 'DRN-2026-0820', village: 'Sonbarsa', crop: 'Potato (आलू)', acres: 5, cost: '₹2,000', status: 'Pending Review', pilot: 'Unassigned' },
-                { id: 'DRN-2026-0821', village: 'Gajraula', crop: 'Mustard (सरसों)', acres: 2, cost: '₹800', status: 'In Transit', pilot: 'Pilot Unit #2 (Maholi)' },
-              ].map((b) => (
+              {droneBookings.length === 0 ? (
+                <div style={{ color: '#94a3b8', padding: '20px' }}>No drone bookings found.</div>
+              ) : droneBookings.map((b) => (
                 <div key={b.id} style={{ background: '#1e293b', borderRadius: '10px', border: '1px solid #334155', padding: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <strong style={{ color: '#38bdf8', fontSize: '0.9rem' }}>{b.id}</strong>
+                    <strong style={{ color: '#38bdf8', fontSize: '0.9rem' }}>{b.id.split('-')[0]}-{b.id.slice(0,6)}</strong>
                     <span style={{
                       padding: '2px 8px',
                       borderRadius: '999px',
-                      background: b.status === 'Approved' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                      color: b.status === 'Approved' ? '#10b981' : '#f59e0b',
+                      background: b.status === 'approved' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+                      color: b.status === 'approved' ? '#10b981' : '#f59e0b',
                       fontSize: '0.72rem',
                       fontWeight: 700
                     }}>
-                      {b.status}
+                      {b.status.toUpperCase()}
                     </span>
                   </div>
 
                   <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#cbd5e1' }}>
-                    <div>📍 Village: <strong>{b.village}</strong></div>
-                    <div>🌾 Crop: <strong>{b.crop}</strong> ({b.acres} Acres)</div>
-                    <div>💰 Cost: <strong>{b.cost}</strong></div>
-                    <div>🚁 Pilot: <span style={{ color: '#94a3b8' }}>{b.pilot}</span></div>
+                    <div>📍 Jurisdiction: <strong>{b.jurisdiction_id || 'Unknown'}</strong></div>
+                    <div>🌾 Crop: <strong>{b.crop_name}</strong> ({b.acreage_ha} Hectares)</div>
+                    <div>🚁 Pilot: <span style={{ color: '#94a3b8' }}>{b.chc_name} ({b.chc_distance_km} km)</span></div>
+                    <div>📅 Date: <strong>{new Date(b.booked_at).toLocaleDateString()}</strong></div>
                   </div>
 
-                  {b.status === 'Pending Review' && (
+                  {b.status === 'pending' && (
                     <button
                       onClick={() => {
-                        setActionNotice(`Drone booking ${b.id} approved and dispatched!`);
+                        setActionNotice(`Drone booking ${b.id.slice(0, 8)} approved and dispatched!`);
                         setTimeout(() => setActionNotice(null), 4000);
                       }}
                       style={{

@@ -78,6 +78,7 @@ interface ScanPrediction {
 function ScanScreen({ onNavigateToDrone }: { onNavigateToDrone?: () => void }) {
   const { t, i18n } = useTranslation()
   const { speak, stop, supported } = useTTS()
+  const { user, token } = useAuth()
 
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
@@ -310,6 +311,31 @@ function ScanScreen({ onNavigateToDrone }: { onNavigateToDrone?: () => void }) {
 
         setPrediction(predData)
         setScanState('result')
+
+        // Save disease report to the backend queue
+        if (user) {
+          try {
+            await fetch(`${apiBase}/api/v1/disease-reports`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: token ? `Bearer ${token}` : ''
+              },
+              body: JSON.stringify({
+                farmer_id: user.id,
+                jurisdiction_id: user.jurisdiction_id,
+                disease_id: predData.disease_id,
+                image_url: previewSrc,
+                confidence_score: predData.confidence,
+                pathogen_type: predData.pathogen_type,
+                gps_lat: 0.0, // Should be actual GPS if available
+                gps_lon: 0.0
+              })
+            })
+          } catch (err) {
+            console.error('Failed to save disease report:', err)
+          }
+        }
 
         const voiceMsg = `${predData.crop} ${predData.disease_name}. ${(predData.confidence * 100).toFixed(0)} percent confidence.`
         speak(voiceMsg, i18n.language)

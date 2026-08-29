@@ -21,6 +21,7 @@ from app.api.v1.endpoints import (
     agristack,
     post_harvest,
     notifications,
+    disease_reports,
 )
 
 api_router = APIRouter()
@@ -37,6 +38,7 @@ api_router.include_router(subsidy.router, prefix="/drone", tags=["drone"])
 api_router.include_router(agristack.router, prefix="/agristack", tags=["agristack"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 api_router.include_router(post_harvest.router, prefix="/post-harvest", tags=["post-harvest"])
+api_router.include_router(disease_reports.router, prefix="/disease-reports", tags=["disease-reports"])
 import sys
 import os
 
