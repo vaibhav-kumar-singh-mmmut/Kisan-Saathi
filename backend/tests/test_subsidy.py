@@ -173,7 +173,6 @@ def test_flag_allowed_at_threshold_and_window_correct(session):
     )
 
 
-
 # ─── Test 3: Claim packet completeness ────────────────────────────────────────
 
 def test_claim_packet_completeness(session):

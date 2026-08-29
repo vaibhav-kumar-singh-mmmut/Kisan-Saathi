@@ -22,7 +22,7 @@ from app.api.v1.router import api_router
 
 
 from app.core.database import Base, engine
-import app.models  # noqa: F401
+import app.models as _models  # noqa: F401
 
 
 @asynccontextmanager

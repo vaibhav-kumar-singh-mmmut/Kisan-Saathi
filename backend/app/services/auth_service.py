@@ -78,7 +78,7 @@ def verify_otp_and_login(phone: str, code: str, db: Session) -> TokenResponse:
             jur = db.execute(select(Jurisdiction).where(Jurisdiction.id == official.jurisdiction_id)).scalar_one_or_none()
             if jur:
                 jurisdiction_name = jur.name
-                
+
         payload = {
             "sub": official.id,
             "user_type": "official",
@@ -109,7 +109,7 @@ def verify_otp_and_login(phone: str, code: str, db: Session) -> TokenResponse:
             jur = db.execute(select(Jurisdiction).where(Jurisdiction.id == farmer.jurisdiction_id)).scalar_one_or_none()
             if jur:
                 jurisdiction_name = jur.name
-                
+
         payload = {
             "sub": farmer.id,
             "user_type": "farmer",
@@ -152,7 +152,7 @@ def signup_user(body: SignupRequest, db: Session) -> dict:
 
     jurisdiction_id = None
     jurisdiction_type = body.jurisdiction_type or "village"
-    
+
     # Grab a random jurisdiction of this type for hackathon simplicity
     jur = db.execute(select(Jurisdiction).where(Jurisdiction.jurisdiction_type == jurisdiction_type)).scalars().first()
     if jur:
@@ -175,6 +175,6 @@ def signup_user(body: SignupRequest, db: Session) -> dict:
             jurisdiction_id=jurisdiction_id
         )
         db.add(new_official)
-    
+
     db.commit()
     return {"message": "User registered successfully"}

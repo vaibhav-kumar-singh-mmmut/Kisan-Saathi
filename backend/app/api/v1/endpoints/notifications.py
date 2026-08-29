@@ -3,6 +3,7 @@ from typing import Dict, Any
 
 router = APIRouter()
 
+
 @router.post("/sms/fallback", summary="SMS Fallback Stub")
 async def sms_fallback(payload: Dict[str, Any]):
     """
@@ -10,6 +11,7 @@ async def sms_fallback(payload: Dict[str, Any]):
     """
     # Just a stub: log and return success
     return {"status": "success", "message": "SMS fallback triggered (stub)", "payload": payload}
+
 
 @router.post("/whatsapp/webhook", summary="WhatsApp Webhook Stub")
 async def whatsapp_webhook(request: Request):

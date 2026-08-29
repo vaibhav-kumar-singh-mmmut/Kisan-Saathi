@@ -46,7 +46,7 @@ def get_weather_for_jurisdiction(jurisdiction_id: str, db: Session = Depends(get
         "rainfall_mm": float(rainfall),
         "alerts": []
     }
-    
+
     if zone_status:
         # Generate dynamic banners based on current zone and weather_triggered status
         if zone_status.color == "red" and weather and weather.rainfall_mm and weather.rainfall_mm > 100.0:
@@ -55,7 +55,7 @@ def get_weather_for_jurisdiction(jurisdiction_id: str, db: Session = Depends(get
             result["alerts"].append("Blight Risk: High humidity/temperature patterns detected. Preventive spray advised.")
         elif zone_status.color == "incoming_risk":
             result["alerts"].append("Incoming Risk: Disease outbreak reported in a neighboring village.")
-            
+
     return result
 
 

@@ -88,7 +88,6 @@ function ScanScreen({ onNavigateToDrone }: { onNavigateToDrone?: () => void }) {
 
   const [scanState, setScanState] = useState<ScanState>('idle')
   const [previewSrc, setPreviewSrc] = useState<string | null>(null)
-  const [gpsLabel, setGpsLabel] = useState<string>('')
   const [mismatchWarning, setMismatchWarning] = useState<boolean>(false)
   const [prediction, setPrediction] = useState<ScanPrediction | null>(null)
   const [selectedCropContext, setSelectedCropContext] = useState<string>('auto')
@@ -169,17 +168,9 @@ function ScanScreen({ onNavigateToDrone }: { onNavigateToDrone?: () => void }) {
   }
 
   const fetchGPS = (file?: File) => {
-    setGpsLabel(t('scan.gps_fetching'))
-    let liveLat: number | undefined
-    let liveLng: number | undefined
-
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          liveLat = pos.coords.latitude
-          liveLng = pos.coords.longitude
-          setGpsLabel(`📍 ${liveLat.toFixed(4)}, ${liveLng.toFixed(4)}`)
-
+        async (_pos) => {
           if (file) {
             try {
               const exifData = await exifr.parse(file)
@@ -195,11 +186,11 @@ function ScanScreen({ onNavigateToDrone }: { onNavigateToDrone?: () => void }) {
             }
           }
         },
-        () => setGpsLabel(t('scan.gps_unavailable')),
+        () => console.warn('Geolocation unavailable'),
         { timeout: 5000 }
       )
     } else {
-      setGpsLabel(t('scan.gps_unavailable'))
+      console.warn('Geolocation unavailable')
     }
   }
 
@@ -245,7 +236,6 @@ function ScanScreen({ onNavigateToDrone }: { onNavigateToDrone?: () => void }) {
 
   const handleRetake = () => {
     setPreviewSrc(null)
-    setGpsLabel('')
     setMismatchWarning(false)
     setPrediction(null)
     stopWebcam()

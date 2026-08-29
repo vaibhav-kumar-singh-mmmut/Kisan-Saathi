@@ -10,6 +10,7 @@ from app.services.zone_scoring_service import calculate_zone_scores
 
 logger = logging.getLogger(__name__)
 
+
 async def sync_weather_for_jurisdictions(session: Session, jurisdiction_id: str = None):
     """
     Fetches real-time weather from Open-Meteo for villages and updates WeatherDaily.
@@ -36,16 +37,16 @@ async def sync_weather_for_jurisdictions(session: Session, jurisdiction_id: str 
                     f"?latitude={v_lat}&longitude={v_lon}"
                     f"&current=temperature_2m,relative_humidity_2m,precipitation"
                 )
-                
+
                 response = await client.get(url, timeout=10.0)
                 response.raise_for_status()
                 data = response.json()
-                
+
                 current = data.get("current", {})
                 temp = current.get("temperature_2m", 25.0)
                 humidity = current.get("relative_humidity_2m", 50.0)
                 rainfall = current.get("precipitation", 0.0)
-                
+
                 existing = session.execute(
                     select(WeatherDaily)
                     .where(WeatherDaily.jurisdiction_id == village.id)
@@ -72,6 +73,6 @@ async def sync_weather_for_jurisdictions(session: Session, jurisdiction_id: str 
                 logger.error(f"Failed to fetch weather for village {village.id}: {e}")
 
     session.commit()
-    
+
     # Trigger recalculation of zone scores so weather triggers apply immediately
     calculate_zone_scores(session)

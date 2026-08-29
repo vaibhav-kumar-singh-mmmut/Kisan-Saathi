@@ -63,8 +63,8 @@ def get_advisory(disease_id: str, confidence: float, db: Session = Depends(get_d
     else:
         # Fungal, Bacterial, Insect
         return AdvisoryResponse(
-            status="treatable", 
-            advisory_steps=disease.ipm_steps or [], 
-            advisory_steps_hi=disease.ipm_steps_hi or [], 
+            status="treatable",
+            advisory_steps=disease.ipm_steps or [],
+            advisory_steps_hi=disease.ipm_steps_hi or [],
             **base_response
         )

@@ -98,7 +98,7 @@ def calculate_zone_scores(session: Session):
 
         if report_count == 0:
             score = 10.0  # baseline
-            
+
             # Phase 10: Weather check even if no reports
             weather_today = (
                 session.execute(
@@ -268,24 +268,24 @@ def _get_nearby_jurisdictions(
         select(Jurisdiction)
         .where(Jurisdiction.jurisdiction_type == 'village')
         .where(Jurisdiction.id != source_id)
-        .where(Jurisdiction.lat != None)
-        .where(Jurisdiction.lon != None)
+        .where(Jurisdiction.lat.is_not(None))
+        .where(Jurisdiction.lon.is_not(None))
     ).scalars().all()
 
     nearby = []
     for v in villages:
         # Haversine formula
-        R = 6371.0 # Earth radius in km
+        R = 6371.0  # Earth radius in km
         lat1, lon1 = math.radians(float(source.lat)), math.radians(float(source.lon))
         lat2, lon2 = math.radians(float(v.lat)), math.radians(float(v.lon))
-        
+
         dlat = lat2 - lat1
         dlon = lon2 - lon1
-        
+
         a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
         distance = R * c
-        
+
         if distance <= radius_km:
             nearby.append(v.id)
 
