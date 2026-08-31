@@ -17,6 +17,8 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.subsidy_flag import SubsidyFlag
 from app.models.drone_booking import DroneBooking
+from app.models.jurisdiction import Jurisdiction
+from app.models.farmer import Farmer
 from app.services.subsidy_service import (
     can_flag_subsidy,
     create_subsidy_flag,
@@ -89,7 +91,9 @@ def list_subsidy_flags(
     status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
 ):
-    """List PMFBY subsidy flags, optionally filtered by jurisdiction and status."""
+    """List PMFBY subsidy flags with farmer names and village details."""
+    import json as _json
+
     q = db.query(SubsidyFlag)
     if jurisdiction_id:
         q = q.filter(SubsidyFlag.jurisdiction_id == jurisdiction_id)
@@ -97,21 +101,69 @@ def list_subsidy_flags(
         q = q.filter(SubsidyFlag.status == status)
     flags = q.order_by(SubsidyFlag.created_at.desc()).all()
 
-    return [
-        {
+    # Build jurisdiction lookup map
+    jur_ids = list({f.jurisdiction_id for f in flags if f.jurisdiction_id})
+    jur_map = {}
+    if jur_ids:
+        jurs = db.query(Jurisdiction).filter(Jurisdiction.id.in_(jur_ids)).all()
+        jur_map = {j.id: j for j in jurs}
+
+    # Collect all farmer IDs across all flags
+    all_farmer_ids = []
+    for f in flags:
+        try:
+            ids = _json.loads(f.farmer_ids) if isinstance(f.farmer_ids, str) else (f.farmer_ids or [])
+            all_farmer_ids.extend(ids)
+        except Exception:
+            pass
+    unique_farmer_ids = list(set(all_farmer_ids))
+    farmer_map = {}
+    if unique_farmer_ids:
+        farmers_q = db.query(Farmer).filter(Farmer.id.in_(unique_farmer_ids)).all()
+        farmer_map = {fm.id: fm for fm in farmers_q}
+
+    result = []
+    for f in flags:
+        jur = jur_map.get(f.jurisdiction_id)
+        try:
+            farmer_ids_list = _json.loads(f.farmer_ids) if isinstance(f.farmer_ids, str) else (f.farmer_ids or [])
+        except Exception:
+            farmer_ids_list = []
+
+        farmers_detail = []
+        for fid in farmer_ids_list:
+            farmer = farmer_map.get(fid)
+            if farmer:
+                farmers_detail.append({"id": farmer.id, "name": farmer.name, "phone": farmer.phone})
+            else:
+                farmers_detail.append({"id": fid, "name": "Unknown Farmer", "phone": ""})
+
+        try:
+            report_ids_list = _json.loads(f.report_ids) if isinstance(f.report_ids, str) else (f.report_ids or [])
+        except Exception:
+            report_ids_list = []
+
+        result.append({
             "id": f.id,
             "jurisdiction_id": f.jurisdiction_id,
+            "village_name": jur.name if jur else f.jurisdiction_id,
+            "district_name": jur.district_name if jur else "Gorakhpur",
+            "village_lat": float(jur.lat) if jur and jur.lat else None,
+            "village_lon": float(jur.lon) if jur and jur.lon else None,
             "disease_id": f.disease_id,
             "flagged_by": f.flagged_by,
             "status": f.status,
             "acreage_ha": f.acreage_ha,
-            "farmer_count": len(f.farmer_ids or []),
-            "report_count": len(f.report_ids or []),
+            "farmer_count": len(farmer_ids_list),
+            "farmers": farmers_detail,
+            "report_count": len(report_ids_list),
             "pmfby_window_expires_at": f.pmfby_window_expires_at,
+            "approved_by": f.approved_by,
+            "approved_at": f.approved_at,
             "created_at": f.created_at,
-        }
-        for f in flags
-    ]
+        })
+
+    return result
 
 
 @router.post("/flags/{flag_id}/approve", tags=["subsidy"])
@@ -166,7 +218,7 @@ def book_drone(body: DroneBookingRequest, db: Session = Depends(get_db)):
         "crop_name": booking.crop_name,
         "scheduled_for": booking.scheduled_for,
         "booked_at": booking.booked_at,
-        "message": f"Drone spray booked successfully. Nearest CHC: {booking.chc_name} ({booking.chc_distance_km} km away).",
+        "message": f"Drone spray booked. Nearest CHC: {booking.chc_name} ({booking.chc_distance_km} km away).",
     }
 
 
@@ -176,7 +228,7 @@ def list_drone_bookings(
     status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
 ):
-    """Officer view — list all drone bookings, optionally filtered."""
+    """Officer view — list all drone bookings with farmer and village names."""
     q = db.query(DroneBooking)
     if jurisdiction_id:
         q = q.filter(DroneBooking.jurisdiction_id == jurisdiction_id)
@@ -184,15 +236,37 @@ def list_drone_bookings(
         q = q.filter(DroneBooking.status == status)
     bookings = q.order_by(DroneBooking.booked_at.desc()).all()
 
+    # Build lookup maps
+    jur_ids = list({b.jurisdiction_id for b in bookings if b.jurisdiction_id})
+    jur_map = {}
+    if jur_ids:
+        jurs = db.query(Jurisdiction).filter(Jurisdiction.id.in_(jur_ids)).all()
+        jur_map = {j.id: j for j in jurs}
+
+    farmer_ids = list({b.farmer_id for b in bookings if b.farmer_id})
+    farmer_map = {}
+    if farmer_ids:
+        farmers_q = db.query(Farmer).filter(Farmer.id.in_(farmer_ids)).all()
+        farmer_map = {fm.id: fm for fm in farmers_q}
+
     return [
         {
             "id": b.id,
             "farmer_id": b.farmer_id,
+            "farmer_name": farmer_map[b.farmer_id].name if b.farmer_id in farmer_map else "Unknown Farmer",
+            "farmer_phone": farmer_map[b.farmer_id].phone if b.farmer_id in farmer_map else "",
             "jurisdiction_id": b.jurisdiction_id,
+            "village_name": jur_map[b.jurisdiction_id].name if b.jurisdiction_id in jur_map else b.jurisdiction_id,
+            "district_name": jur_map[b.jurisdiction_id].district_name if b.jurisdiction_id in jur_map else "Gorakhpur",
+            "village_lat": float(jur_map[b.jurisdiction_id].lat) if b.jurisdiction_id in jur_map and jur_map[b.jurisdiction_id].lat else None,
+            "village_lon": float(jur_map[b.jurisdiction_id].lon) if b.jurisdiction_id in jur_map and jur_map[b.jurisdiction_id].lon else None,
+            "chc_lat": b.chc_lat,
+            "chc_lon": b.chc_lon,
             "chc_name": b.chc_name,
             "chc_distance_km": b.chc_distance_km,
             "crop_name": b.crop_name,
             "acreage_ha": b.acreage_ha,
+            "notes": b.notes,
             "status": b.status,
             "scheduled_for": b.scheduled_for,
             "booked_at": b.booked_at,

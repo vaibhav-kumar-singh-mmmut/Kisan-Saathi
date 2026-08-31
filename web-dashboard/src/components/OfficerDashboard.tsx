@@ -86,7 +86,9 @@ export default function OfficerDashboard() {
   const [droneBookings, setDroneBookings] = useState<DroneBooking[]>([]);
   const [subsidyLoading, setSubsidyLoading] = useState(false);
   const [agriStackLoading, setAgriStackLoading] = useState(false);
-  
+  const [droneStatusFilter, setDroneStatusFilter] = useState('All');
+  const [subsidyStatusFilter, setSubsidyStatusFilter] = useState('All');
+
   // Discrepancy Form State
   const [discVillage, setDiscVillage] = useState<string>('');
   const [discFarmer, setDiscFarmer] = useState<string>('');
@@ -182,6 +184,15 @@ export default function OfficerDashboard() {
         const droneData = await droneRes.json();
         setDroneBookings(droneData || []);
       }
+
+      // 8. Fetch Subsidy Flags
+      const subsidyRes = await fetch(`${apiBase}/api/v1/subsidy/flags`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (subsidyRes.ok) {
+        const subsidyData = await subsidyRes.json();
+        setSubsidyFlags(subsidyData || []);
+      }
     } catch (err: any) {
       console.error('Officer Dashboard load error:', err);
       setError(err.message || 'Failed to load surveillance data');
@@ -193,6 +204,8 @@ export default function OfficerDashboard() {
   useEffect(() => {
     if (token) {
       loadDashboardData();
+      const interval = setInterval(loadDashboardData, 25000);
+      return () => clearInterval(interval);
     }
   }, [loadDashboardData, token]);
 
@@ -218,6 +231,14 @@ export default function OfficerDashboard() {
     }
   };
 
+  // Auto-select first village if none selected
+  useEffect(() => {
+    if (features && features.length > 0 && !selectedVillage) {
+      const f = features[0];
+      handleSelectVillage(f.properties, f.geometry.coordinates as [number, number]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [features]);
   const handleSyncWeather = async () => {
     setSyncStatus('Syncing Open-Meteo feeds…');
     try {
@@ -300,7 +321,7 @@ export default function OfficerDashboard() {
     }
   };
 
-  const center: [number, number] = [27.5683, 80.6698]; // Sitapur
+  const center: [number, number] = [26.8106, 83.5232]; // Rural Gorakhpur
 
   return (
     <div className="officer-portal-root" style={{ background: '#0a0d14', minHeight: '100vh', color: '#f1f5f9' }}>
@@ -615,9 +636,9 @@ export default function OfficerDashboard() {
                       />
                     ) : (
                       <TileLayer
-                        key="carto-tiles"
-                        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                        key="osm-tiles"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         maxZoom={19}
                       />
                     )}
@@ -1037,215 +1058,293 @@ export default function OfficerDashboard() {
         )}
 
         {/* ── TAB 4: DRONE SPRAY DISPATCH ────────────────────────────────── */}
-        {activeTab === 'drone' && (
+        {activeTab === 'drone' && (() => {
+          const droneStatuses = ['All', 'Pending SHG', 'Approved', 'Completed', 'Rejected'];
+          const filteredDrone = droneStatusFilter === 'All' ? droneBookings : droneBookings.filter((b: any) => b.status === droneStatusFilter);
+          const statusColor = (s: string) => s === 'Approved' ? '#10b981' : s === 'Completed' ? '#38bdf8' : s === 'Rejected' ? '#f43f5e' : '#f59e0b';
+          const statusBg = (s: string) => s === 'Approved' ? 'rgba(16,185,129,0.15)' : s === 'Completed' ? 'rgba(56,189,248,0.15)' : s === 'Rejected' ? 'rgba(244,63,94,0.15)' : 'rgba(245,158,11,0.15)';
+          const totalAcreage = filteredDrone.reduce((a: number, b: any) => a + (b.acreage_ha || 0), 0);
+          return (
           <div style={{ background: '#131b2e', borderRadius: '14px', border: '1px solid #1e293b', padding: '20px' }}>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc', margin: '0 0 16px 0' }}>
-              Drone Fleet &amp; Spray Operations (Module M4/M5)
-            </h2>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>🚁 Namo Drone Didi — Spray Dispatch (M4/M5)</h2>
+                <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '4px 0 0' }}>Drone spray bookings routed to nearest CHC/SHG. Confirm and dispatch from here.</p>
+              </div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {droneStatuses.map(s => (
+                  <button key={s} onClick={() => setDroneStatusFilter(s)} style={{ padding: '4px 12px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 700, border: 'none', cursor: 'pointer', background: droneStatusFilter === s ? '#7c3aed' : '#1e293b', color: droneStatusFilter === s ? '#fff' : '#94a3b8' }}>{s}</button>
+                ))}
+              </div>
+            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
-              {droneBookings.length === 0 ? (
-                <div style={{ color: '#94a3b8', padding: '20px' }}>No drone bookings found.</div>
-              ) : droneBookings.map((b) => (
-                <div key={b.id} style={{ background: '#1e293b', borderRadius: '10px', border: '1px solid #334155', padding: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <strong style={{ color: '#38bdf8', fontSize: '0.9rem' }}>{b.id.split('-')[0]}-{b.id.slice(0,6)}</strong>
-                    <span style={{
-                      padding: '2px 8px',
-                      borderRadius: '999px',
-                      background: b.status === 'approved' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                      color: b.status === 'approved' ? '#10b981' : '#f59e0b',
-                      fontSize: '0.72rem',
-                      fontWeight: 700
-                    }}>
-                      {b.status.toUpperCase()}
-                    </span>
-                  </div>
-
-                  <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#cbd5e1' }}>
-                    <div>📍 Jurisdiction: <strong>{b.jurisdiction_id || 'Unknown'}</strong></div>
-                    <div>🌾 Crop: <strong>{b.crop_name}</strong> ({b.acreage_ha} Hectares)</div>
-                    <div>🚁 Pilot: <span style={{ color: '#94a3b8' }}>{b.chc_name} ({b.chc_distance_km} km)</span></div>
-                    <div>📅 Date: <strong>{new Date(b.booked_at).toLocaleDateString()}</strong></div>
-                  </div>
-
-                  {b.status === 'pending' && (
-                    <button
-                      onClick={() => {
-                        setActionNotice(`Drone booking ${b.id.slice(0, 8)} approved and dispatched!`);
-                        setTimeout(() => setActionNotice(null), 4000);
-                      }}
-                      style={{
-                        marginTop: '12px',
-                        width: '100%',
-                        background: '#10b981',
-                        color: '#064e3b',
-                        border: 'none',
-                        padding: '8px',
-                        borderRadius: '6px',
-                        fontWeight: 700,
-                        fontSize: '0.78rem',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Approve &amp; Assign Pilot Unit →
-                    </button>
-                  )}
+            {/* Summary Stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '10px', marginBottom: '16px' }}>
+              {[['Total', droneBookings.length, '#38bdf8'], ['Pending', droneBookings.filter((b:any)=>b.status==='Pending SHG').length,'#f59e0b'],
+                ['Approved', droneBookings.filter((b:any)=>b.status==='Approved').length,'#10b981'], ['Area (ha)', totalAcreage.toFixed(1),'#a78bfa']].map(([label,val,col])=>(
+                <div key={label as string} style={{ background: '#1e293b', borderRadius: '8px', padding: '10px 14px', border: '1px solid #334155', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: col as string }}>{val}</div>
+                  <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '2px' }}>{label as string}</div>
                 </div>
               ))}
             </div>
-          </div>
-        )}
 
-        {/* ── TAB 5: PMFBY SUBSIDY FLAG PANEL ────────────────────────────── */}
-        {activeTab === 'subsidy' && (
-          <div style={{ background: '#131b2e', borderRadius: '14px', border: '1px solid #1e293b', padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <div>
-                <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>🏛️ PMFBY Subsidy Flag Panel (Phase 11)</h2>
-                <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '4px 0 0 0' }}>Raise and approve PMFBY insurance claim flags. Audit trail is immutable once approved.</p>
-              </div>
-              <button
-                onClick={async () => {
-                  setSubsidyLoading(true);
-                  try {
-                    const res = await fetch(`${apiBase}/api/v1/subsidy/flags`);
-                    if (res.ok) setSubsidyFlags(await res.json());
-                  } catch { /* offline demo */ }
-                  setSubsidyLoading(false);
-                }}
-                style={{ background: '#1e293b', color: '#38bdf8', border: '1px solid #334155', borderRadius: '6px', padding: '6px 14px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
-              >
-                🔄 Refresh Flags
-              </button>
-            </div>
-
-            {/* Demo Flag — Raise a new flag */}
-            <div style={{ background: '#1e293b', borderRadius: '10px', border: '1px solid rgba(245,158,11,0.3)', padding: '16px', marginBottom: '16px' }}>
-              <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 700, marginBottom: '10px' }}>⚡ RAISE NEW PMFBY FLAG</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: '10px', alignItems: 'end' }}>
-                <div>
-                  <label style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>VILLAGE / JURISDICTION</label>
-                  <select
-                    id="subsidy-jurisdiction-select"
-                    style={{ width: '100%', background: '#0f172a', color: '#f8fafc', border: '1px solid #334155', borderRadius: '6px', padding: '6px 10px', fontSize: '0.82rem', outline: 'none' }}
-                  >
-                    <option value="VIL-1">Rampur Khurd</option>
-                    <option value="VIL-2">Sonbarsa</option>
-                    <option value="VIL-3">Gajraula</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>DISEASE</label>
-                  <select
-                    id="subsidy-disease-select"
-                    style={{ width: '100%', background: '#0f172a', color: '#f8fafc', border: '1px solid #334155', borderRadius: '6px', padding: '6px 10px', fontSize: '0.82rem', outline: 'none' }}
-                  >
-                    <option value="wheat_yellow_rust">Wheat Yellow Rust</option>
-                    <option value="potato_early_blight">Potato Early Blight</option>
-                    <option value="tomato_late_blight">Tomato Late Blight</option>
-                  </select>
-                </div>
-                <button
-                  id="btn-raise-subsidy-flag"
-                  onClick={async () => {
-                    const jur = (document.getElementById('subsidy-jurisdiction-select') as HTMLSelectElement)?.value;
-                    const dis = (document.getElementById('subsidy-disease-select') as HTMLSelectElement)?.value;
-                    try {
-                      const res = await fetch(`${apiBase}/api/v1/subsidy/flag`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ officer_id: 'OFF-DEMO', jurisdiction_id: jur, disease_id: dis, acreage_ha: 4.5 }),
-                      });
-                      if (res.ok) {
-                        setActionNotice('PMFBY flag raised successfully!');
-                        const flagsRes = await fetch(`${apiBase}/api/v1/subsidy/flags`);
-                        if (flagsRes.ok) setSubsidyFlags(await flagsRes.json());
-                      } else {
-                        const err = await res.json();
-                        setActionNotice(`Cannot raise flag: ${err.detail}`);
-                      }
-                    } catch {
-                      setActionNotice('Backend offline — flag cannot be raised in demo mode.');
-                    }
-                    setTimeout(() => setActionNotice(null), 5000);
-                  }}
-                  style={{ background: '#7c3aed', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px 14px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
-                >
-                  ⚑ Raise Flag
-                </button>
-              </div>
-            </div>
-
-            {/* Flags List */}
-            {subsidyLoading ? (
-              <div style={{ textAlign: 'center', color: '#38bdf8', padding: '20px' }}>Loading flags…</div>
-            ) : subsidyFlags.length === 0 ? (
-              <div style={{ textAlign: 'center', color: '#64748b', padding: '30px', fontSize: '0.88rem' }}>
-                No PMFBY flags raised yet. Use the form above to raise one, or ensure the backend is running with seeded disease reports.
-              </div>
+            {/* Bookings Grid */}
+            {filteredDrone.length === 0 ? (
+              <div style={{ color: '#64748b', padding: '30px', textAlign: 'center', fontSize: '0.88rem' }}>No bookings matching filter.</div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '14px' }}>
-                {subsidyFlags.map((flag: any) => (
-                  <div key={flag.id} style={{ background: '#1e293b', borderRadius: '10px', border: `1px solid ${flag.status === 'approved' ? 'rgba(16,185,129,0.4)' : flag.status === 'rejected' ? 'rgba(244,63,94,0.4)' : 'rgba(245,158,11,0.3)'}`, padding: '14px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                {filteredDrone.map((b: any) => (
+                  <div key={b.id} style={{ background: '#1e293b', borderRadius: '10px', border: `1px solid ${statusBg(b.status).replace('0.15','0.4')}`, padding: '16px' }}>
+                    {/* Card Header */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                       <div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>FLAG ID</div>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#38bdf8' }}>{flag.id?.slice(0, 12)}…</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>BOOKING ID</div>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#38bdf8', fontFamily: 'monospace' }}>{b.id?.slice(0,8)}…</div>
                       </div>
-                      <span style={{
-                        padding: '3px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700,
-                        background: flag.status === 'approved' ? 'rgba(16,185,129,0.2)' : flag.status === 'rejected' ? 'rgba(244,63,94,0.2)' : 'rgba(245,158,11,0.2)',
-                        color: flag.status === 'approved' ? '#10b981' : flag.status === 'rejected' ? '#f43f5e' : '#f59e0b',
-                      }}>{flag.status?.toUpperCase()}</span>
+                      <span style={{ padding: '3px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: statusBg(b.status), color: statusColor(b.status) }}>{b.status?.toUpperCase()}</span>
                     </div>
 
-                    <div style={{ marginTop: '10px', fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.6 }}>
-                      <div>🏘️ Jurisdiction: <strong>{flag.jurisdiction_id}</strong></div>
-                      <div>🦠 Disease: <strong>{flag.disease_id?.replace(/_/g, ' ')}</strong></div>
-                      <div>👨‍🌾 Farmers: <strong>{flag.farmer_count}</strong> | Reports: <strong>{flag.report_count}</strong></div>
-                      {flag.pmfby_window_expires_at && (
-                        <div>⏰ PMFBY Window: <strong style={{ color: '#f59e0b' }}>{new Date(flag.pmfby_window_expires_at).toLocaleString('en-IN')}</strong></div>
+                    {/* Farmer Info */}
+                    <div style={{ background: 'rgba(56,189,248,0.07)', borderRadius: '6px', padding: '8px 10px', marginBottom: '10px', border: '1px solid rgba(56,189,248,0.12)' }}>
+                      <div style={{ fontSize: '0.68rem', color: '#64748b', marginBottom: '4px', fontWeight: 700 }}>FARMER DETAILS</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f8fafc' }}>👤 {b.farmer_name || 'Unknown Farmer'}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '2px' }}>
+                        📍 {b.village_name || 'Village'} &nbsp;·&nbsp; 📱 {b.farmer_phone || 'N/A'}
+                      </div>
+                      {b.village_lat && b.village_lon && (
+                        <a
+                          href={`https://www.google.com/maps?q=${b.village_lat},${b.village_lon}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '5px', fontSize: '0.68rem', color: '#38bdf8', textDecoration: 'none', background: 'rgba(56,189,248,0.1)', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(56,189,248,0.2)' }}
+                        >
+                          🗺️ {b.village_lat.toFixed(4)}°N, {b.village_lon.toFixed(4)}°E — View on Map
+                        </a>
                       )}
                     </div>
 
-                    {flag.status === 'pending' && (
-                      <button
-                        onClick={async () => {
-                          try {
-                            const res = await fetch(`${apiBase}/api/v1/subsidy/flags/${flag.id}/approve`, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ approver_id: 'BDO-DEMO' }),
-                            });
-                            if (res.ok) {
-                              setActionNotice(`Flag ${flag.id.slice(0, 8)} approved! Audit trail locked.`);
-                              const flagsRes = await fetch(`${apiBase}/api/v1/subsidy/flags`);
-                              if (flagsRes.ok) setSubsidyFlags(await flagsRes.json());
-                            } else {
-                              const err = await res.json();
-                              setActionNotice(`Approval error: ${err.detail}`);
-                            }
-                          } catch {
-                            setActionNotice('Backend offline.');
-                          }
-                          setTimeout(() => setActionNotice(null), 5000);
-                        }}
-                        style={{ marginTop: '10px', width: '100%', background: '#10b981', color: '#064e3b', border: 'none', padding: '8px', borderRadius: '6px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}
-                      >
-                        ✓ Approve Flag (BDO)
-                      </button>
-                    )}
+                    {/* Location & Crop */}
+                    <div style={{ fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.7 }}>
+                      <div>📍 Village: <strong style={{ color: '#f8fafc' }}>{b.village_name || b.jurisdiction_id}</strong></div>
+                      <div>🏛️ District: <span style={{ color: '#94a3b8' }}>{b.district_name || 'Gorakhpur'}</span></div>
+                      {b.village_lat && b.village_lon && (
+                        <div>
+                          🗺️ GPS:&nbsp;
+                          <a href={`https://www.google.com/maps?q=${b.village_lat},${b.village_lon}`} target="_blank" rel="noopener noreferrer"
+                            style={{ color: '#38bdf8', fontSize: '0.72rem' }}>
+                            {b.village_lat.toFixed(4)}°N, {b.village_lon.toFixed(4)}°E ↗
+                          </a>
+                        </div>
+                      )}
+                      <div>🌾 Crop: <strong>{b.crop_name}</strong> — <span style={{ color: '#a78bfa' }}>{b.acreage_ha} ha</span></div>
+                      <div>🚁 CHC: <span style={{ color: '#38bdf8' }}>{b.chc_name}</span> <span style={{ color: '#64748b' }}>({b.chc_distance_km} km)</span></div>
+                      {b.chc_lat && b.chc_lon && (
+                        <div>
+                          🚁 CHC GPS:&nbsp;
+                          <a href={`https://www.google.com/maps?q=${b.chc_lat},${b.chc_lon}`} target="_blank" rel="noopener noreferrer"
+                            style={{ color: '#a78bfa', fontSize: '0.72rem' }}>
+                            {b.chc_lat.toFixed(4)}°N, {b.chc_lon.toFixed(4)}°E ↗
+                          </a>
+                        </div>
+                      )}
+                      <div>📅 Scheduled: <strong>{b.scheduled_for ? new Date(b.scheduled_for).toLocaleDateString('en-IN') : 'TBD'}</strong></div>
+                      <div>🕐 Booked: {new Date(b.booked_at).toLocaleDateString('en-IN')}</div>
+                    </div>
 
-                    {flag.status === 'approved' && (
-                      <div style={{ marginTop: '10px', fontSize: '0.72rem', color: '#10b981', fontWeight: 600 }}>🔒 Audit trail locked — immutable</div>
+                    {b.notes && <div style={{ marginTop: '8px', fontSize: '0.72rem', color: '#64748b', fontStyle: 'italic', borderTop: '1px solid #334155', paddingTop: '8px' }}>📝 {b.notes}</div>}
+
+                    {/* Actions */}
+                    {b.status === 'Pending SHG' && (
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                        <button
+                          onClick={async () => {
+                            setActionNotice(`✅ Booking ${b.id.slice(0,8)} approved & dispatched to ${b.chc_name}!`);
+                            setTimeout(() => setActionNotice(null), 5000);
+                          }}
+                          style={{ flex: 1, background: '#10b981', color: '#064e3b', border: 'none', padding: '8px', borderRadius: '6px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}
+                        >✓ Approve & Dispatch</button>
+                        <button
+                          onClick={() => { setActionNotice(`❌ Booking rejected.`); setTimeout(()=>setActionNotice(null),4000); }}
+                          style={{ background: 'rgba(244,63,94,0.15)', color: '#f43f5e', border: '1px solid rgba(244,63,94,0.3)', padding: '8px 12px', borderRadius: '6px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}
+                        >✕ Reject</button>
+                      </div>
                     )}
+                    {b.status === 'Approved' && <div style={{ marginTop: '10px', fontSize: '0.72rem', color: '#10b981', fontWeight: 600 }}>✅ Approved — Dispatched to SHG pilot unit</div>}
+                    {b.status === 'Completed' && <div style={{ marginTop: '10px', fontSize: '0.72rem', color: '#38bdf8', fontWeight: 600 }}>🏁 Spray completed successfully</div>}
                   </div>
                 ))}
               </div>
             )}
           </div>
-        )}
+          );
+        })()}
+
+        {/* ── TAB 5: PMFBY SUBSIDY FLAG PANEL ────────────────────────────── */}
+        {activeTab === 'subsidy' && (() => {
+          const subsidyStatuses = ['All', 'pending_audit', 'approved', 'rejected'];
+          const statusLabel: Record<string,string> = { 'All': 'All', 'pending_audit': 'Pending', 'approved': 'Approved', 'rejected': 'Rejected' };
+          const filteredFlags = subsidyStatusFilter === 'All' ? subsidyFlags : subsidyFlags.filter((f: any) => f.status === subsidyStatusFilter);
+          const totalAcreage = filteredFlags.reduce((a: number, f: any) => a + (f.acreage_ha || 0), 0);
+          const totalFarmers = filteredFlags.reduce((a: number, f: any) => a + (f.farmer_count || 0), 0);
+          const sColor = (s: string) => s === 'approved' ? '#10b981' : s === 'rejected' ? '#f43f5e' : '#f59e0b';
+          const sBg = (s: string) => s === 'approved' ? 'rgba(16,185,129,0.15)' : s === 'rejected' ? 'rgba(244,63,94,0.15)' : 'rgba(245,158,11,0.15)';
+          return (
+          <div style={{ background: '#131b2e', borderRadius: '14px', border: '1px solid #1e293b', padding: '20px' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>🏛️ PMFBY Subsidy Flag Panel (Phase 11)</h2>
+                <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '4px 0 0' }}>Raise and approve PMFBY insurance claim flags. Audit trail is immutable once approved.</p>
+              </div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                {subsidyStatuses.map(s => (
+                  <button key={s} onClick={() => setSubsidyStatusFilter(s)} style={{ padding: '4px 12px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 700, border: 'none', cursor: 'pointer', background: subsidyStatusFilter === s ? '#7c3aed' : '#1e293b', color: subsidyStatusFilter === s ? '#fff' : '#94a3b8' }}>{statusLabel[s]}</button>
+                ))}
+                <button onClick={async () => { setSubsidyLoading(true); try { const r = await fetch(`${apiBase}/api/v1/subsidy/flags`); if(r.ok) setSubsidyFlags(await r.json()); } catch {} setSubsidyLoading(false); }}
+                  style={{ background: '#1e293b', color: '#38bdf8', border: '1px solid #334155', borderRadius: '6px', padding: '5px 12px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}>🔄 Refresh</button>
+              </div>
+            </div>
+
+            {/* Summary Stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '10px', marginBottom: '16px' }}>
+              {[['Total Flags', subsidyFlags.length, '#38bdf8'], ['Pending', subsidyFlags.filter((f:any)=>f.status==='pending_audit').length,'#f59e0b'],
+                ['Approved', subsidyFlags.filter((f:any)=>f.status==='approved').length,'#10b981'], ['Total Area (ha)', totalAcreage.toFixed(1),'#a78bfa']].map(([label,val,col])=>(
+                <div key={label as string} style={{ background: '#1e293b', borderRadius: '8px', padding: '10px 14px', border: '1px solid #334155', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: col as string }}>{val}</div>
+                  <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '2px' }}>{label as string}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Raise Flag Form */}
+            <div style={{ background: '#1e293b', borderRadius: '10px', border: '1px solid rgba(245,158,11,0.3)', padding: '16px', marginBottom: '16px' }}>
+              <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 700, marginBottom: '10px' }}>⚡ RAISE NEW PMFBY FLAG</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 120px', gap: '10px', alignItems: 'end' }}>
+                <div>
+                  <label style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>VILLAGE</label>
+                  <select id="subsidy-jurisdiction-select" style={{ width: '100%', background: '#0f172a', color: '#f8fafc', border: '1px solid #334155', borderRadius: '6px', padding: '6px 10px', fontSize: '0.82rem', outline: 'none' }}>
+                    {features.map((f: any) => <option key={f.properties.id} value={f.properties.id}>{f.properties.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>DISEASE</label>
+                  <select id="subsidy-disease-select" style={{ width: '100%', background: '#0f172a', color: '#f8fafc', border: '1px solid #334155', borderRadius: '6px', padding: '6px 10px', fontSize: '0.82rem', outline: 'none' }}>
+                    <option value="wheat_yellow_rust">Wheat Yellow Rust</option>
+                    <option value="rice_blast">Rice Blast</option>
+                    <option value="potato_early_blight">Potato Early Blight</option>
+                    <option value="solanaceous_late_blight">Late Blight</option>
+                    <option value="mustard_pests_diseases">Mustard Pests</option>
+                    <option value="sugarcane_red_rot">Sugarcane Red Rot</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>AREA (ha)</label>
+                  <input id="subsidy-acreage-input" type="number" defaultValue="5.0" min="0.1" step="0.5"
+                    style={{ width: '100%', background: '#0f172a', color: '#f8fafc', border: '1px solid #334155', borderRadius: '6px', padding: '6px 10px', fontSize: '0.82rem', outline: 'none' }} />
+                </div>
+                <button id="btn-raise-subsidy-flag"
+                  onClick={async () => {
+                    const jur = (document.getElementById('subsidy-jurisdiction-select') as HTMLSelectElement)?.value;
+                    const dis = (document.getElementById('subsidy-disease-select') as HTMLSelectElement)?.value;
+                    const ha = parseFloat((document.getElementById('subsidy-acreage-input') as HTMLInputElement)?.value || '5');
+                    try {
+                      const res = await fetch(`${apiBase}/api/v1/subsidy/flag`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ officer_id: 'OFF-DEMO', jurisdiction_id: jur, disease_id: dis, acreage_ha: ha }) });
+                      if (res.ok) { setActionNotice('✅ PMFBY flag raised!'); const r2 = await fetch(`${apiBase}/api/v1/subsidy/flags`); if(r2.ok) setSubsidyFlags(await r2.json()); }
+                      else { const e = await res.json(); setActionNotice(`Cannot raise: ${e.detail}`); }
+                    } catch { setActionNotice('Backend offline.'); }
+                    setTimeout(() => setActionNotice(null), 5000);
+                  }}
+                  style={{ background: '#7c3aed', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px 14px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>⚑ Raise Flag</button>
+              </div>
+            </div>
+
+            {/* Flags List */}
+            {subsidyLoading ? <div style={{ textAlign: 'center', color: '#38bdf8', padding: '20px' }}>Loading…</div>
+            : filteredFlags.length === 0 ? <div style={{ textAlign: 'center', color: '#64748b', padding: '30px', fontSize: '0.88rem' }}>No flags matching filter.</div>
+            : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '14px' }}>
+                {filteredFlags.map((flag: any) => (
+                  <div key={flag.id} style={{ background: '#1e293b', borderRadius: '10px', border: `1px solid ${sBg(flag.status).replace('0.15','0.4')}`, padding: '16px' }}>
+                    {/* Flag Header */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>FLAG ID</div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '0.78rem', fontWeight: 700, color: '#38bdf8' }}>{flag.id?.slice(0,12)}…</div>
+                      </div>
+                      <span style={{ padding: '3px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: sBg(flag.status), color: sColor(flag.status) }}>{flag.status?.replace('_',' ').toUpperCase()}</span>
+                    </div>
+
+                    {/* Location & Disease */}
+                    <div style={{ background: 'rgba(56,189,248,0.05)', borderRadius: '6px', padding: '8px 10px', marginBottom: '10px' }}>
+                      <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700, marginBottom: '4px' }}>LOCATION & DISEASE</div>
+                      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>📍 {flag.village_name}</div>
+                      <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>🏛️ {flag.district_name}, Gorakhpur Division</div>
+                      {flag.village_lat && flag.village_lon && (
+                        <a
+                          href={`https://www.google.com/maps?q=${flag.village_lat},${flag.village_lon}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '4px', fontSize: '0.67rem', color: '#38bdf8', textDecoration: 'none', background: 'rgba(56,189,248,0.1)', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(56,189,248,0.2)' }}
+                        >
+                          🗺️ {flag.village_lat.toFixed(4)}°N, {flag.village_lon.toFixed(4)}°E — View on Map ↗
+                        </a>
+                      )}
+                      <div style={{ fontSize: '0.78rem', color: '#fbbf24', fontWeight: 600, marginTop: '6px' }}>🦠 {flag.disease_id?.replace(/_/g,' ').replace(/\b\w/g,(c:string)=>c.toUpperCase())}</div>
+                      <div style={{ fontSize: '0.72rem', color: '#a78bfa', marginTop: '2px' }}>🌾 Affected area: <strong>{flag.acreage_ha} ha</strong></div>
+                    </div>
+
+                    {/* Farmers Getting Benefits */}
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700, marginBottom: '6px' }}>👨‍🌾 BENEFICIARY FARMERS ({flag.farmer_count}) — {flag.village_name}</div>
+                      {(flag.farmers || []).map((fm: any) => (
+                        <div key={fm.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 10px', background: 'rgba(16,185,129,0.07)', borderRadius: '6px', marginBottom: '5px', border: '1px solid rgba(16,185,129,0.12)' }}>
+                          <div>
+                            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>👤 {fm.name}</div>
+                            <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '1px' }}>
+                              📍 {flag.village_name} &nbsp;·&nbsp; 📱 {fm.phone || 'N/A'}
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: '0.63rem', background: 'rgba(16,185,129,0.2)', color: '#10b981', padding: '2px 8px', borderRadius: '999px', fontWeight: 700, display: 'block' }}>BENEFICIARY</span>
+                            <span style={{ fontSize: '0.6rem', color: '#64748b', marginTop: '2px', display: 'block' }}>PMFBY Insured</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Metadata */}
+                    <div style={{ fontSize: '0.72rem', color: '#64748b', lineHeight: 1.7, borderTop: '1px solid #334155', paddingTop: '8px' }}>
+                      <div>📋 Reports: {flag.report_count} | Flagged by: {flag.flagged_by}</div>
+                      {flag.pmfby_window_expires_at && <div>⏰ PMFBY Window expires: <strong style={{ color: '#f59e0b' }}>{new Date(flag.pmfby_window_expires_at).toLocaleDateString('en-IN')}</strong></div>}
+                      {flag.approved_by && <div>✅ Approved by: <strong style={{ color: '#10b981' }}>{flag.approved_by}</strong></div>}
+                      <div>📅 Created: {new Date(flag.created_at).toLocaleDateString('en-IN')}</div>
+                    </div>
+
+                    {/* Actions */}
+                    {flag.status === 'pending_audit' && (
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                        <button onClick={async () => {
+                          try {
+                            const res = await fetch(`${apiBase}/api/v1/subsidy/flags/${flag.id}/approve`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({approver_id:'BDO-DEMO'}) });
+                            if (res.ok) { setActionNotice(`✅ Flag approved! Audit locked.`); const r2 = await fetch(`${apiBase}/api/v1/subsidy/flags`); if(r2.ok) setSubsidyFlags(await r2.json()); }
+                            else { const e = await res.json(); setActionNotice(`Error: ${e.detail}`); }
+                          } catch { setActionNotice('Backend offline.'); }
+                          setTimeout(()=>setActionNotice(null),5000);
+                        }} style={{ flex:1, background:'#10b981', color:'#064e3b', border:'none', padding:'8px', borderRadius:'6px', fontWeight:700, fontSize:'0.75rem', cursor:'pointer' }}>✓ Approve (BDO)</button>
+                        <button onClick={()=>{setActionNotice('Flag rejected.');setTimeout(()=>setActionNotice(null),4000);}} style={{ background:'rgba(244,63,94,0.15)', color:'#f43f5e', border:'1px solid rgba(244,63,94,0.3)', padding:'8px 12px', borderRadius:'6px', fontWeight:700, fontSize:'0.75rem', cursor:'pointer' }}>✕ Reject</button>
+                      </div>
+                    )}
+                    {flag.status === 'approved' && <div style={{ marginTop:'10px', fontSize:'0.72rem', color:'#10b981', fontWeight:600 }}>🔒 Audit trail locked — immutable record</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          );
+        })()}
 
         {/* ── TAB 6: AGRISTACK & WDRA STORAGE (PHASE 12) ─────────────────── */}
         {activeTab === 'agristack' && (

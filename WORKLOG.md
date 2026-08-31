@@ -307,3 +307,18 @@ test_dashboard_dm_scope PASSED            ← DM sees all district villages
 - ✅ Full regression test suite: 33/33 tests passing.
 - ✅ Frontend TypeScript build (`npm run build`) compiles cleanly in 180ms with 0 errors.
 
+---
+
+## Phase 13 — Namo Drone Didi Routing Architecture Implementation
+
+**Date/Time:** 2026-08-31
+**Tool/Agent:** Antigravity AI
+**What happened:**
+- Implemented the routing architecture for the **Namo Drone Didi / SVAMITVA** module.
+- Seeded a representative directory of Self Help Groups (`MOCK_SHG_DIRECTORY`) mimicking the real-world KVK-coordinated structure.
+- Refactored `FarmerShell.tsx` to automatically route drone spray and SVAMITVA mapping requests to the nearest SHG based on geographic proximity.
+- Enforced a strict `Pending SHG Confirmation` status lock on all new requests in the `OfficerDashboard.tsx`. 
+- Removed the manual "Approve & Dispatch" button from the Officer Dashboard to reflect reality: this is a request-routing layer, and final confirmation must come from the actual personnel at the KVK/SHG.
+
+**Important Architecture Note for Pitch Materials:**
+> *Note: This module acts as an illustrative request-routing layer designed to interface with the real Namo Drone Didi program (KVK/SHGs) once deployed. It explicitly leaves requests in a "Pending" state because it is not a live integration with an existing API (as none exists publicly), but rather demonstrates how the workflow will connect farmers to SHG pilots.*

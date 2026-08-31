@@ -91,7 +91,7 @@ export default function OfficerMap() {
   if (loading) return <div style={{ color: '#38bdf8', padding: '20px' }}>Loading Hotspots...</div>;
   if (error) return <div style={{ color: '#f43f5e', padding: '20px' }}>⚠️ {error}</div>;
 
-  const center: [number, number] = [26.8467, 80.9462];
+  const center: [number, number] = [26.8106, 83.5232];
 
   const getColorHex = (color: string) => {
     if (color === 'red') return '#f43f5e';
@@ -104,8 +104,8 @@ export default function OfficerMap() {
     <div style={{ height: '500px', width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #1e293b' }}>
       <MapContainer center={center} zoom={8} style={{ height: '100%', width: '100%' }}>
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={19}
         />
         <LayersControl position="topright">
