@@ -1,16 +1,20 @@
 services:
   backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
+    image: python:3.12-slim
+    working_dir: /app/backend
+    volumes:
+      - .:/app
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app/backend
-      - ./ml-model:/app/ml-model
-      - ./disease_lookup.json:/app/disease_lookup.json
+    command: >
+      bash -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
-      - ./seed-data:/app/seed-data
-    environment:
-      - APP_ENV=development
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+  ml-model:
+    image: python:3.12-slim
+    working_dir: /app/ml-model
+    volumes:
+      - .:/app
+    ports:
+      - "8001:8001"
+    command: >
+      bash -c "pip install -r requirements.txt && uvicorn ml_service:app --host 0.0.0.0 --port 8001 --reload"

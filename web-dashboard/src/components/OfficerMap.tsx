@@ -33,27 +33,8 @@ export default function OfficerMap() {
   useEffect(() => {
     const fetchMapData = async () => {
       try {
-        // Request fresh auth token seamlessly
-        const reqRes = await fetch(`${apiBase}/api/v1/auth/otp/request`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: '+919001000001' })
-        });
-        const reqData = await reqRes.json();
-        
-        let token = localStorage.getItem('officer_token');
-        if (reqData.dev_code) {
-          const verifyRes = await fetch(`${apiBase}/api/v1/auth/otp/verify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone: '+919001000001', code: reqData.dev_code })
-          });
-          const verifyData = await verifyRes.json();
-          if (verifyData.access_token) {
-            token = verifyData.access_token;
-            localStorage.setItem('officer_token', token!);
-          }
-        }
+        const token = localStorage.getItem('officer_token');
+        if (!token) throw new Error('Authentication token is missing');
 
         const res = await fetch(`${apiBase}/api/v1/map/hotspots`, {
           headers: {

@@ -130,69 +130,46 @@ export default function OfficerDashboard() {
       }
 
       // 2. Fetch Map Hotspots
-      const mapRes = await fetch(`${apiBase}/api/v1/map/hotspots`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (mapRes.ok) {
-        const mapData = await mapRes.json();
-        setFeatures(mapData.features || []);
-      } else {
-        throw new Error('Map service responded with an error.');
-      }
+      try {
+        const mapRes = await fetch(`${apiBase}/api/v1/map/hotspots`, { headers: { Authorization: `Bearer ${token}` } });
+        if (mapRes.ok) setFeatures((await mapRes.json()).features || []);
+      } catch (e) { console.error("Map Hotspots fetch failed:", e); }
 
       // 3. Fetch Scoped Villages
-      const vilRes = await fetch(`${apiBase}/api/v1/dashboard/villages`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (vilRes.ok) {
-        const vilData = await vilRes.json();
-        setVillages(vilData || []);
-      }
+      try {
+        const vilRes = await fetch(`${apiBase}/api/v1/dashboard/villages`, { headers: { Authorization: `Bearer ${token}` } });
+        if (vilRes.ok) setVillages(await vilRes.json() || []);
+      } catch (e) { console.error("Villages fetch failed:", e); }
 
       // 4. Fetch Expert Validation Queue
-      const expRes = await fetch(`${apiBase}/api/v1/expert-queue`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (expRes.ok) {
-        const expData = await expRes.json();
-        setExpertQueue(expData || []);
-      }
+      try {
+        const expRes = await fetch(`${apiBase}/api/v1/expert-queue`, { headers: { Authorization: `Bearer ${token}` } });
+        if (expRes.ok) setExpertQueue(await expRes.json() || []);
+      } catch (e) { console.error("Expert Queue fetch failed:", e); }
 
       // 5. Fetch AgriStack Crop Catalogue
-      const catRes = await fetch(`${apiBase}/api/v1/agristack/catalogue`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (catRes.ok) {
-        const catData = await catRes.json();
-        setCropCatalogue(catData || []);
-      }
+      try {
+        const catRes = await fetch(`${apiBase}/api/v1/agristack/catalogue`, { headers: { Authorization: `Bearer ${token}` } });
+        if (catRes.ok) setCropCatalogue(await catRes.json() || []);
+      } catch (e) { console.error("Catalogue fetch failed:", e); }
 
       // 6. Fetch Statutory Crop Discrepancies
-      const discRes = await fetch(`${apiBase}/api/v1/agristack/discrepancies`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (discRes.ok) {
-        const discData = await discRes.json();
-        setCropDiscrepancies(discData || []);
-      }
+      try {
+        const discRes = await fetch(`${apiBase}/api/v1/agristack/discrepancies`, { headers: { Authorization: `Bearer ${token}` } });
+        if (discRes.ok) setCropDiscrepancies(await discRes.json() || []);
+      } catch (e) { console.error("Discrepancies fetch failed:", e); }
 
       // 7. Fetch Drone Bookings
-      const droneRes = await fetch(`${apiBase}/api/v1/drone/bookings`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (droneRes.ok) {
-        const droneData = await droneRes.json();
-        setDroneBookings(droneData || []);
-      }
+      try {
+        const droneRes = await fetch(`${apiBase}/api/v1/drone/bookings`, { headers: { Authorization: `Bearer ${token}` } });
+        if (droneRes.ok) setDroneBookings(await droneRes.json() || []);
+      } catch (e) { console.error("Drone Bookings fetch failed:", e); }
 
       // 8. Fetch Subsidy Flags
-      const subsidyRes = await fetch(`${apiBase}/api/v1/subsidy/flags`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (subsidyRes.ok) {
-        const subsidyData = await subsidyRes.json();
-        setSubsidyFlags(subsidyData || []);
-      }
+      try {
+        const subsidyRes = await fetch(`${apiBase}/api/v1/subsidy/flags`, { headers: { Authorization: `Bearer ${token}` } });
+        if (subsidyRes.ok) setSubsidyFlags(await subsidyRes.json() || []);
+      } catch (e) { console.error("Subsidy fetch failed:", e); }
     } catch (err: any) {
       console.error('Officer Dashboard load error:', err);
       setError(err.message || 'Failed to load surveillance data');

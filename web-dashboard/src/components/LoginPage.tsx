@@ -105,9 +105,10 @@ export default function LoginPage({ onNavigateToSignup }: { onNavigateToSignup?:
                 onClick={(e) => {
                   setPhone('+91124567890');
                   // We must defer the submit slightly so state updates
+                  const form = e.currentTarget.form;
                   setTimeout(() => {
                     const event = new Event('submit', { bubbles: true, cancelable: true });
-                    e.currentTarget.form?.dispatchEvent(event);
+                    form?.dispatchEvent(event);
                   }, 50);
                 }}
                 style={{
@@ -128,9 +129,10 @@ export default function LoginPage({ onNavigateToSignup }: { onNavigateToSignup?:
                 type="button"
                 onClick={(e) => {
                   setPhone('+91123456789');
+                  const form = e.currentTarget.form;
                   setTimeout(() => {
                     const event = new Event('submit', { bubbles: true, cancelable: true });
-                    e.currentTarget.form?.dispatchEvent(event);
+                    form?.dispatchEvent(event);
                   }, 50);
                 }}
                 style={{
@@ -230,9 +232,10 @@ export default function LoginPage({ onNavigateToSignup }: { onNavigateToSignup?:
                 type="button"
                 onClick={(e) => {
                   setOtp(devCode);
+                  const form = e.currentTarget.form;
                   setTimeout(() => {
                     const event = new Event('submit', { bubbles: true, cancelable: true });
-                    e.currentTarget.form?.dispatchEvent(event);
+                    form?.dispatchEvent(event);
                   }, 50);
                 }}
                 style={{
