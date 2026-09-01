@@ -25,7 +25,7 @@ services:
     plan: free
     envVars:
      - key: VITE_API_URL
-        value: "https://kisan-saathi-api-0jew.onrender.com"
+       value: "https://kisan-saathi-api-0jew.onrender.com"
 
 databases:
   # 3. PostgreSQL Database
