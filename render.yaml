@@ -14,7 +14,7 @@ services:
           name: kisan-saathi-db
           property: connectionString
       - key: ALLOWED_ORIGINS
-        value: "https://kisan-saathi-frontend.onrender.com,http://localhost:5173"
+        value: "https://kisan-saathi-git-main-kisan-saathi1.vercel.app,http://localhost:5173"
 
   # 2. Frontend React/Vite Dashboard
   - type: web
