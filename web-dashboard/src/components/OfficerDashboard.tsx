@@ -1187,7 +1187,6 @@ export default function OfficerDashboard() {
           const statusLabel: Record<string,string> = { 'All': 'All', 'pending_audit': 'Pending', 'approved': 'Approved', 'rejected': 'Rejected' };
           const filteredFlags = subsidyStatusFilter === 'All' ? subsidyFlags : subsidyFlags.filter((f: any) => f.status === subsidyStatusFilter);
           const totalAcreage = filteredFlags.reduce((a: number, f: any) => a + (f.acreage_ha || 0), 0);
-          const totalFarmers = filteredFlags.reduce((a: number, f: any) => a + (f.farmer_count || 0), 0);
           const sColor = (s: string) => s === 'approved' ? '#10b981' : s === 'rejected' ? '#f43f5e' : '#f59e0b';
           const sBg = (s: string) => s === 'approved' ? 'rgba(16,185,129,0.15)' : s === 'rejected' ? 'rgba(244,63,94,0.15)' : 'rgba(245,158,11,0.15)';
           return (
