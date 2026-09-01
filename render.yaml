@@ -24,11 +24,8 @@ services:
     staticPublishPath: web-dashboard/dist
     plan: free
     envVars:
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: kisan-saathi-api
-          property: url
+     - key: VITE_API_URL
+        value: "https://kisan-saathi-api-0jew.onrender.com"
 
 databases:
   # 3. PostgreSQL Database
